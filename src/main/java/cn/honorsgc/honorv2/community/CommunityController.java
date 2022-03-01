@@ -216,6 +216,7 @@ public class CommunityController {
         participant.setType(type);
         participant.setUsers(user);
 
+
         //检查是否重复报名
         if (community.getMentors().contains(participant) || community.getParticipants().contains(participant)) {
             //若包含，则获取对应表项的valid
