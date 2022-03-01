@@ -182,6 +182,11 @@ public class CommunityController {
             throw new CommunityIllegalParameterException("报名停止");
         }
 
+
+        //检查是否能参加
+
+        //检查是否能够审批 审批是0
+
         //检查共同体人数限制
         if (type==0&&(community.getLimit()<=0||community.getLimit()<=community.getParticipantsCount())){
             throw new CommunityIllegalParameterException("参与人数超过限制");
