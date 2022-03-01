@@ -24,6 +24,17 @@ public class CommunityParticipant {
     @Column(name = "typ")
     private Integer type;
 
+    @Column(name = "valid")
+    private Boolean valid;
+
+    public Boolean getValid() {
+        return valid;
+    }
+
+    public void setValid(Boolean valid) {
+        this.valid = valid;
+    }
+
     public Integer getType() {
         return type;
     }

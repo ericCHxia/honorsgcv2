@@ -45,6 +45,12 @@ public class Community {
 
     private Boolean enrolling;
 
+    @Column(name = "need_mentor")
+    private Boolean needMentor;
+
+    @Column(name = "registration")
+    private Integer registrationType;
+
     @OneToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "gttid")
     @Where(clause = "typ = 0")
@@ -54,6 +60,22 @@ public class Community {
     @JoinColumn(name = "gttid")
     @Where(clause = "typ = 1")
     Set<CommunityParticipant> mentors;
+
+    public Integer getRegistrationType() {
+        return registrationType;
+    }
+
+    public void setRegistrationType(Integer registrationType) {
+        this.registrationType = registrationType;
+    }
+
+    public Boolean getNeedMentor() {
+        return needMentor;
+    }
+
+    public void setNeedMentor(Boolean needMentor) {
+        this.needMentor = needMentor;
+    }
 
     public Integer getParticipantsCount(){
         return participants.size();

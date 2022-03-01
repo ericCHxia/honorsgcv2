@@ -9,12 +9,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 import org.hibernate.validator.group.GroupSequenceProvider;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 
 @Data
 @AllArgsConstructor
@@ -44,4 +46,8 @@ public class CommunityRequestBody implements Serializable {
     private Integer state;
     private Boolean enrolling;
     private Boolean update;
+    private Boolean needMentor;
+    @NotNull(groups = CreateWish.class)
+    @Range(min = 0,max = 1)
+    private Integer registrationType;
 }
