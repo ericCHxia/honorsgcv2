@@ -40,7 +40,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/swagger-ui.html",
             "/webjars/**",
             "/swagger-ui/**",
-            "/upload/**"
+            "/upload/**",
+            "/image/**"
     };
 
     @Override
