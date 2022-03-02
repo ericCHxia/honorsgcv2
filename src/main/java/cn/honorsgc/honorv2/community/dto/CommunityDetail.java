@@ -22,6 +22,8 @@ public class CommunityDetail implements Serializable {
     private final Integer state;
     private final Date createDate;
     private final Boolean enrolling;
+    private final Boolean needMentor;
+    private final Integer registrationType;
     private final Set<CommunityParticipantSimple> participants;
     private final Set<CommunityParticipantSimple> mentors;
 }

@@ -22,4 +22,5 @@ public class CommunitySimple implements Serializable {
     private final Date createDate;
     private final Boolean enrolling;
     private final Integer participants;
+    private final Integer registrationType;
 }
