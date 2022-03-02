@@ -9,6 +9,7 @@ import cn.honorsgc.honorv2.community.exception.CommunityException;
 import cn.honorsgc.honorv2.community.exception.CommunityIllegalParameterException;
 import cn.honorsgc.honorv2.community.exception.CommunityNotFoundException;
 import cn.honorsgc.honorv2.community.mapper.CommunityMapper;
+import cn.honorsgc.honorv2.community.repository.CommunityParticipantRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityTypeRepository;
 import cn.honorsgc.honorv2.core.GlobalAuthority;
@@ -46,6 +47,8 @@ public class CommunityController {
     private CommunityTypeRepository typeRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CommunityParticipantRepository communityParticipantRepository;
 
     @PostMapping({"", "/"})
     @ApiOperation(value = "新建或者修改共同体")
@@ -85,21 +88,21 @@ public class CommunityController {
         return communityMapper.communityToCommunitySaveResponseBody(community);
     }
 
-    @GetMapping({"","/"})
+    @GetMapping({"", "/"})
     public Page<CommunitySimple> getCommunities(@ApiIgnore Authentication authentication,
-                                              @ApiParam(value = "页号") @RequestParam(value = "page",required = false,defaultValue = "0") Integer pageNumber,
-                                              @ApiParam(value = "类型") @RequestParam(value = "type",required = false,defaultValue = "-1") Integer type,
-                                              @ApiParam(value = "用户编号") @RequestParam(value = "user",required = false,defaultValue = "-1") Long userId,
-                                              @ApiParam(value = "状态",allowableValues = "0,1,2") @RequestParam(required = false) Integer state,
-                                              @ApiParam(value = "搜索文本") @RequestParam(value = "search",required = false,defaultValue = "")String search,
-                                              @ApiParam(value = "使用管理员权限") @RequestParam(required = false,defaultValue = "false")Boolean admin,
-                                              @ApiParam(value = "参与用户") @RequestParam(value = "participant",required = false,defaultValue = "-1")Long participantId,
-                                              @RequestParam(value = "mentor",required = false,defaultValue = "-1")Long mentorId
-                                        )throws CommunityException {
+                                                @ApiParam(value = "页号") @RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber,
+                                                @ApiParam(value = "类型") @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
+                                                @ApiParam(value = "用户编号") @RequestParam(value = "user", required = false, defaultValue = "-1") Long userId,
+                                                @ApiParam(value = "状态", allowableValues = "0,1,2") @RequestParam(required = false) Integer state,
+                                                @ApiParam(value = "搜索文本") @RequestParam(value = "search", required = false, defaultValue = "") String search,
+                                                @ApiParam(value = "使用管理员权限") @RequestParam(required = false, defaultValue = "false") Boolean admin,
+                                                @ApiParam(value = "参与用户") @RequestParam(value = "participant", required = false, defaultValue = "-1") Long participantId,
+                                                @RequestParam(value = "mentor", required = false, defaultValue = "-1") Long mentorId
+    ) throws CommunityException {
         //TODO 实现参与用户 和 管理用户的筛选
         User user = (User) authentication.getPrincipal();
 
-        if (admin&&state!=null&&authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
+        if (admin && state != null && authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             if (state < 0 || state > 3) {
                 throw new CommunityIllegalParameterException("state参数错误");
             }
@@ -107,53 +110,53 @@ public class CommunityController {
 
         Specification<Community> specification = (root, query, cb) -> {
             List<Predicate> list = new ArrayList<>();
-            if (type>=0){
-                list.add(cb.equal(root.get("type").get("id"),type));
+            if (type >= 0) {
+                list.add(cb.equal(root.get("type").get("id"), type));
             }
-            if (admin&&state!=null&&authentication.getAuthorities().contains(GlobalAuthority.ADMIN)){
-                list.add(cb.equal(root.get("state"),state));
-            }else {
-                list.add(cb.or(cb.equal(root.get("state"),1),cb.equal(root.get("user").get("id"),user.getId())));
+            if (admin && state != null && authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
+                list.add(cb.equal(root.get("state"), state));
+            } else {
+                list.add(cb.or(cb.equal(root.get("state"), 1), cb.equal(root.get("user").get("id"), user.getId())));
             }
 
-            if (!search.equals(""))list.add(cb.like(root.get("title"),"%"+search+"%"));
+            if (!search.equals("")) list.add(cb.like(root.get("title"), "%" + search + "%"));
             Predicate[] predicates = new Predicate[list.size()];
             return cb.and(list.toArray(predicates));
         };
 
-        Sort sort = Sort.by(Sort.Direction.DESC,"createDate");
+        Sort sort = Sort.by(Sort.Direction.DESC, "createDate");
 
-        Pageable pageable = PageRequest.of(pageNumber,25,sort);
+        Pageable pageable = PageRequest.of(pageNumber, 25, sort);
 
-        Page<Community> pages= repository.findAll(specification,pageable);
+        Page<Community> pages = repository.findAll(specification, pageable);
 
         return new PageImpl<>(communityMapper.communityToCommunitySimple(pages.getContent()), pageable, pages.getTotalElements());
     }
 
     @GetMapping("/{id}")
     public CommunityDetail getCommunity(@ApiIgnore Authentication authentication,
-                                        @ApiParam(value = "编号") @PathVariable Long id)throws CommunityException{
+                                        @ApiParam(value = "编号") @PathVariable Long id) throws CommunityException {
         Optional<Community> optionalCommunity = repository.findById(id);
-        if(optionalCommunity.isEmpty()){
+        if (optionalCommunity.isEmpty()) {
             throw new CommunityNotFoundException();
         }
         Community community = optionalCommunity.get();
-        if (community.getState()!=CommunityState.visible&&!(community.getUser().equals(authentication.getPrincipal())||authentication.getAuthorities().contains(GlobalAuthority.ADMIN))){
+        if (community.getState() != CommunityState.visible && !(community.getUser().equals(authentication.getPrincipal()) || authentication.getAuthorities().contains(GlobalAuthority.ADMIN))) {
             throw new CommunityNotFoundException();
         }
         return communityMapper.communityToCommunityDetail(community);
     }
 
     @GetMapping("/type")
-    public List<CommunityType> getType(){
+    public List<CommunityType> getType() {
         return typeRepository.findAll();
     }
 
     @GetMapping("/participant")
     @ApiOperation("获取参与者")
-    public CommunityParticipantResponse getParticipant(@RequestParam(value = "id")Long id) throws CommunityException{
+    public CommunityParticipantResponse getParticipant(@RequestParam(value = "id") Long id) throws CommunityException {
         Optional<Community> community = repository.findById(id);
-        if (community.isEmpty()){
+        if (community.isEmpty()) {
             throw new CommunityNotFoundException();
         }
         return communityMapper.communityToCommunityParticipantResponse(community.get());
@@ -163,45 +166,48 @@ public class CommunityController {
     @ApiOperation("添加参与者")
     public String joinCommunity(@ApiIgnore Authentication authentication,
                                 @RequestParam(value = "id") Long id,
-                                @RequestParam(value = "type",required = false,defaultValue = "0") Integer type,
-                                @RequestParam(value = "delete",required = false,defaultValue = "1") Boolean delete,
-                                @RequestParam(value = "userId",required = false,defaultValue = "-1") Long userId)throws CommunityException{
+                                @RequestParam(value = "type", required = false, defaultValue = "0") Integer type,
+                                @RequestParam(value = "delete", required = false, defaultValue = "1") Boolean delete,
+                                @RequestParam(value = "userId", required = false, defaultValue = "-1") Long userId) throws CommunityException {
 
         //检查共同体的有效性
         Optional<Community> optionalCommunity = repository.findById(id);
-        if (optionalCommunity.isEmpty()){
+        if (optionalCommunity.isEmpty()) {
             throw new CommunityIllegalParameterException("共同体不存在");
         }
 
         Community community = optionalCommunity.get();
-        if (community.getState()==CommunityState.notApproved){
+        if (community.getState() == CommunityState.notApproved) {
             throw new CommunityIllegalParameterException("共同体不存在");
         }
 
-        if (!community.getEnrolling()){
+        if (!community.getEnrolling()) {
             throw new CommunityIllegalParameterException("报名停止");
         }
 
+        //检查是否能够审批 审批是0 判断register
         //检查共同体人数限制
-        if (type==0&&(community.getLimit()<=0||community.getLimit()<=community.getParticipantsCount())){
+        //若不需要审批，则判断参与人数
+        else if (type == 0 && (community.getLimit() <= 0 || community.getLimit() <= community.getParticipantsCount()) && community.getRegistrationType() != 0) {
             throw new CommunityIllegalParameterException("参与人数超过限制");
         }
-        if (type==1&&community.getMentors().size()>=2){
+
+        if (type == 1 && community.getMentors().size() >= 2) {
             throw new CommunityIllegalParameterException("指导人数超过限制");
         }
-        if (type!=0&&type!=1){
+        if (type != 0 && type != 1) {
             throw new CommunityIllegalParameterException("指导类型错误");
         }
 
         //检查参与人
         User user;
-        if (userId>0){
+        if (userId > 0) {
             Optional<User> optionalUser = userRepository.findById(userId);
-            if (optionalUser.isEmpty()){
+            if (optionalUser.isEmpty()) {
                 throw new CommunityIllegalParameterException("用户不存在");
             }
             user = optionalUser.get();
-        }else {
+        } else {
             user = (User) authentication.getPrincipal();
         }
 
@@ -210,17 +216,67 @@ public class CommunityController {
         participant.setType(type);
         participant.setUsers(user);
 
-        if (community.getMentors().contains(participant)||community.getParticipants().contains(participant)){
-            throw new CommunityIllegalParameterException("您已参与");
-        }
 
-        if (participant.getType()==1){
+        //检查是否重复报名
+        if (community.getMentors().contains(participant) || community.getParticipants().contains(participant)) {
+            //若包含，则获取对应表项的valid
+            CommunityParticipant cp = communityParticipantRepository.findCommunityParticipantByUsersAndCommunityId(user, community.getId());
+            if (cp.getValid()) {
+                throw new CommunityIllegalParameterException("您已参与");
+            } else throw new CommunityIllegalParameterException("正在等待审核");
+        }
+        //不包含，则设置valid
+        // community需要审批，则valid设false
+        participant.setValid(!(community.getRegistrationType() == 0));
+
+        if (participant.getType() == 1) {
             community.getMentors().add(participant);
-        }else {
+        } else {
             community.getParticipants().add(participant);
         }
         repository.save(community);
 
         return "参加成功";
+    }
+
+    @GetMapping("approve")
+    @ApiOperation("审核")
+    public String ApproveJoin(@ApiIgnore Authentication authentication,
+                              @RequestParam(value = "id") Long id,
+                              @RequestParam(value = "type", required = false, defaultValue = "0") Integer type,
+                              @RequestParam(value = "userId", required = false, defaultValue = "-1") Long userId) throws CommunityException {
+
+        //检查共同体的有效性
+        Optional<Community> optionalCommunity = repository.findById(id);
+        if (optionalCommunity.isEmpty()) {
+            throw new CommunityIllegalParameterException("共同体不存在");
+        }
+
+        Community community = optionalCommunity.get();
+        if (community.getState() == CommunityState.notApproved) {
+            throw new CommunityIllegalParameterException("共同体不存在");
+        }
+
+        //检查参与人
+        User user;
+        if (userId > 0) {
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (optionalUser.isEmpty()) {
+                throw new CommunityIllegalParameterException("用户不存在");
+            }
+            user = optionalUser.get();
+        } else {
+            user = (User) authentication.getPrincipal();
+        }
+
+        CommunityParticipant cp = communityParticipantRepository.findCommunityParticipantByUsersAndCommunityId(user, community.getId());
+        if(cp.getValid()){
+            throw new CommunityIllegalParameterException("审核已通过");
+        }
+        else cp.setValid(true);
+        //保存
+
+
+        return "审核成功";
     }
 }
