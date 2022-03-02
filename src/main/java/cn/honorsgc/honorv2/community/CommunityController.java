@@ -13,6 +13,7 @@ import cn.honorsgc.honorv2.community.repository.CommunityParticipantRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityTypeRepository;
 import cn.honorsgc.honorv2.core.GlobalAuthority;
+import cn.honorsgc.honorv2.core.GlobalResponseEntity;
 import cn.honorsgc.honorv2.user.User;
 import cn.honorsgc.honorv2.user.UserRepository;
 import io.swagger.annotations.Api;
@@ -28,6 +29,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -214,13 +216,12 @@ public class CommunityController {
         CommunityParticipant participant = new CommunityParticipant();
         participant.setCommunityId(community.getId());
         participant.setType(type);
-        participant.setUsers(user);
-
+        participant.setUser(user);
 
         //检查是否重复报名
         if (community.getMentors().contains(participant) || community.getParticipants().contains(participant)) {
             //若包含，则获取对应表项的valid
-            CommunityParticipant cp = communityParticipantRepository.findCommunityParticipantByUsersAndCommunityId(user, community.getId());
+            CommunityParticipant cp = communityParticipantRepository.findCommunityParticipantByUserAndCommunityId(user, community.getId());
             if (cp.getValid()) {
                 throw new CommunityIllegalParameterException("您已参与");
             } else throw new CommunityIllegalParameterException("正在等待审核");
@@ -241,10 +242,10 @@ public class CommunityController {
 
     @GetMapping("approve")
     @ApiOperation("审核")
-    public String ApproveJoin(@ApiIgnore Authentication authentication,
-                              @RequestParam(value = "id") Long id,
-                              @RequestParam(value = "type", required = false, defaultValue = "0") Integer type,
-                              @RequestParam(value = "userId", required = false, defaultValue = "-1") Long userId) throws CommunityException {
+    public GlobalResponseEntity<String> approveJoin(@ApiIgnore Authentication authentication,
+                                                    @RequestParam(value = "id") Long id,
+                                                    @RequestParam(value = "type", required = false, defaultValue ="1") Boolean type,
+                                                    @RequestParam(value = "userId", required = false, defaultValue = "-1") List<Long> userIds) throws CommunityException {
 
         //检查共同体的有效性
         Optional<Community> optionalCommunity = repository.findById(id);
@@ -257,26 +258,19 @@ public class CommunityController {
             throw new CommunityIllegalParameterException("共同体不存在");
         }
 
-        //检查参与人
-        User user;
-        if (userId > 0) {
-            Optional<User> optionalUser = userRepository.findById(userId);
-            if (optionalUser.isEmpty()) {
-                throw new CommunityIllegalParameterException("用户不存在");
-            }
-            user = optionalUser.get();
-        } else {
-            user = (User) authentication.getPrincipal();
-        }
+        //检查创建者
+        User auth = (User) authentication.getPrincipal();
+        if(!auth.equals(community.getUser()))
+            throw new CommunityIllegalParameterException("您不是创建者");
 
-        CommunityParticipant cp = communityParticipantRepository.findCommunityParticipantByUsersAndCommunityId(user, community.getId());
-        if(cp.getValid()){
-            throw new CommunityIllegalParameterException("审核已通过");
+        Specification<CommunityParticipant>  specification = (root, query, cb)-> cb.and(cb.equal(root.get("communityId"),community.getId()),root.get("user").get("id").in(userIds));
+        List<CommunityParticipant> cpList=communityParticipantRepository.findAll(specification);
+
+        for(CommunityParticipant participant:cpList){
+            participant.setValid(type);
         }
-        else cp.setValid(true);
         //保存
-
-
-        return "审核成功";
+        communityParticipantRepository.saveAll(cpList);
+        return new GlobalResponseEntity<>(0, "审核成功");
     }
 }

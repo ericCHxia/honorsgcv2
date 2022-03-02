@@ -23,13 +23,13 @@ public interface CommunityMapper {
 
     List<CommunitySimple> communityToCommunitySimple(List<Community> community);
 
-    @Mapping(target = "id", source = "users.id")
-    @Mapping(target = "name", source = "users.name")
-    @Mapping(target = "classID", source = "users.classId")
-    @Mapping(target = "userID", source = "users.userId")
-    @Mapping(target = "major", source = "users.subject")
-    @Mapping(target = "college", source = "users.college")
-    @Mapping(target = "qq", source = "users.qq")
+    @Mapping(target = "id", source = "user.id")
+    @Mapping(target = "name", source = "user.name")
+    @Mapping(target = "classID", source = "user.classId")
+    @Mapping(target = "userID", source = "user.userId")
+    @Mapping(target = "major", source = "user.subject")
+    @Mapping(target = "college", source = "user.college")
+    @Mapping(target = "qq", source = "user.qq")
     CommunityParticipantSimple communityParticipantToCommunityParticipantSimple(CommunityParticipant communityParticipant);
 
     Collection<CommunityParticipantSimple> communityParticipantToCommunityParticipantSimple(Collection<CommunityParticipant> communityParticipant);

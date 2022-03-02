@@ -15,7 +15,7 @@ public class CommunityParticipant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usrid", referencedColumnName = "id")
-    private User users;
+    private User user;
 
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "gttid")
@@ -51,12 +51,12 @@ public class CommunityParticipant {
         this.communityId = communityId;
     }
 
-    public User getUsers() {
-        return users;
+    public User getUser() {
+        return user;
     }
 
-    public void setUsers(User users) {
-        this.users = users;
+    public void setUser(User users) {
+        this.user = users;
     }
 
     public Integer getId() {
@@ -72,11 +72,11 @@ public class CommunityParticipant {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CommunityParticipant that = (CommunityParticipant) o;
-        return Objects.equals(users, that.users) && Objects.equals(communityId, that.communityId);
+        return Objects.equals(user, that.user) && Objects.equals(communityId, that.communityId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(users, communityId);
+        return Objects.hash(user, communityId);
     }
 }
