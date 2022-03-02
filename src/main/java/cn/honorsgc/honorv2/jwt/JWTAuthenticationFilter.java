@@ -27,10 +27,12 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
     private final UserService userService;
+    private final JWTHelper jwtHelper;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, UserService userService) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, JWTHelper jwtHelper) {
         super(authenticationManager);
         this.userService = userService;
+        this.jwtHelper = jwtHelper;
     }
 
     @Override
@@ -68,19 +70,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             if ((issuedAt + ((expirationTime - issuedAt) / 2)) < currentTimeMillis && currentTimeMillis < expirationTime) {
 
                 // 重新生成token start
-                Calendar calendar = Calendar.getInstance();
-                Date now = calendar.getTime();
-                // 设置签发时间
-                calendar.setTime(new Date());
-                // 设置过期时间
-                calendar.add(Calendar.MINUTE, 5);// 5分钟
-                Date time = calendar.getTime();
-                String refreshToken = Jwts.builder()
-                        .setSubject(claims.getSubject())
-                        .setIssuedAt(now)//签发时间
-                        .setExpiration(time)//过期时间
-                        .signWith(SignatureAlgorithm.HS512, ConstantKey.SIGNING_KEY) //采用什么算法是可以自己选择的，不一定非要采用HS512
-                        .compact();
+                String refreshToken = jwtHelper.generateToken(claims);
                 // 重新生成token end
 
                 // 主动刷新token，并返回给前端

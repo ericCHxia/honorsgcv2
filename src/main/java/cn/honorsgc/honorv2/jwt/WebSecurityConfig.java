@@ -26,6 +26,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private HttpAuthenticationEntryPoint httpAuthenticationEntryPoint;
     @Autowired
     private SimpleAccessDeniedHandle accessDeniedHandle;
+    @Autowired
+    private JWTHelper jwtHelper;
 
     @Resource
     private DataSource dataSource;
@@ -55,10 +57,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandle) // 自定义访问失败处理器
                 .authenticationEntryPoint(httpAuthenticationEntryPoint)
-                .accessDeniedHandler((request, response, accessDeniedException) -> System.out.println("I am here now!!!"))
                 .and()
-                .addFilter(new JWTLoginFilter(authenticationManager(), userService))
-                .addFilter(new JWTAuthenticationFilter(authenticationManager(), userService))
+                .addFilter(new JWTLoginFilter(authenticationManager(), userService,jwtHelper))
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(), userService, jwtHelper))
                 .logout() // 默认注销行为为logout，可以通过下面的方式来修改
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")// 设置注销成功后跳转页面，默认是跳转到登录页面;
