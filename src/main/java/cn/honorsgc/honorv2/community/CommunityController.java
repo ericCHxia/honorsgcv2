@@ -31,6 +31,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
@@ -240,13 +241,12 @@ public class CommunityController {
         return "参加成功";
     }
 
-    @GetMapping("approve")
+    @PostMapping("approve")
     @ApiOperation("审核")
     public GlobalResponseEntity<String> approveJoin(@ApiIgnore Authentication authentication,
                                                     @RequestParam(value = "id") Long id,
-                                                    @RequestParam(value = "type", required = false, defaultValue ="1") Boolean type,
+                                                    @RequestParam(value = "type", required = false, defaultValue = "1") Boolean type,
                                                     @RequestParam(value = "userId", required = false, defaultValue = "-1") List<Long> userIds) throws CommunityException {
-
         //检查共同体的有效性
         Optional<Community> optionalCommunity = repository.findById(id);
         if (optionalCommunity.isEmpty()) {
@@ -260,17 +260,46 @@ public class CommunityController {
 
         //检查创建者
         User auth = (User) authentication.getPrincipal();
-        if(!auth.equals(community.getUser()))
+        if (!auth.equals(community.getUser()))
             throw new CommunityIllegalParameterException("您不是创建者");
 
-        Specification<CommunityParticipant>  specification = (root, query, cb)-> cb.and(cb.equal(root.get("communityId"),community.getId()),root.get("user").get("id").in(userIds));
-        List<CommunityParticipant> cpList=communityParticipantRepository.findAll(specification);
+        Specification<CommunityParticipant> specification = (root, query, cb) -> cb.and(cb.equal(root.get("communityId"), community.getId()), root.get("user").get("id").in(userIds));
+        List<CommunityParticipant> cpList = communityParticipantRepository.findAll(specification);
 
-        for(CommunityParticipant participant:cpList){
+        for (CommunityParticipant participant : cpList) {
             participant.setValid(type);
         }
         //保存
         communityParticipantRepository.saveAll(cpList);
         return new GlobalResponseEntity<>(0, "审核成功");
+    }
+
+    @DeleteMapping("/participant")
+    @ApiOperation("删除参加者")
+    @Transactional
+    public GlobalResponseEntity<String> delparticipant(@ApiIgnore Authentication authentication,
+                                                       @RequestParam(value = "communityId") Long communityId,
+                                                       @RequestParam(value = "ids", required = false, defaultValue = "-1") List<Integer> ids) throws CommunityException {
+
+        //检查共同体的有效性
+        Optional<Community> optionalCommunity = repository.findById(communityId);
+        if (optionalCommunity.isEmpty()) {
+            throw new CommunityIllegalParameterException("共同体不存在");
+        }
+
+        Community community = optionalCommunity.get();
+        if (community.getState() == CommunityState.notApproved) {
+            throw new CommunityIllegalParameterException("共同体不存在");
+        }
+
+        //检查删除权限
+        User auth = (User) authentication.getPrincipal();//
+        if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) || !auth.equals(community.getUser())) {
+            throw new CommunityIllegalParameterException("您无权删除");
+        }
+
+        //删除
+        communityParticipantRepository.deleteAllByIdIn(ids);
+        return new GlobalResponseEntity<>(0, "删除成功");
     }
 }
