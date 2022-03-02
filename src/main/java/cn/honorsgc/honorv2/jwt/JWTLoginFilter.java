@@ -31,10 +31,12 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
     final private Logger logger= LoggerFactory.getLogger(JWTLoginFilter.class);
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final JWTHelper jwtHelper;
 
-    public JWTLoginFilter(AuthenticationManager authenticationManager, UserService userService) {
+    public JWTLoginFilter(AuthenticationManager authenticationManager, UserService userService,JWTHelper jwtHelper) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.jwtHelper = jwtHelper;
     }
 
     /**
@@ -65,33 +67,19 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
      * @param response
      * @param chain
      * @param auth
-     * @throws IOException
-     * @throws ServletException
      */
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
+                                            Authentication auth) {
         // builder the token
         String token;
         try {
             User user = userService.loadUserByUsername(auth.getName());
 
             // 生成token start
-            Calendar calendar = Calendar.getInstance();
-            Date now = calendar.getTime();
-            // 设置签发时间
-            calendar.setTime(new Date());
-            // 设置过期时间
-            calendar.add(Calendar.MINUTE, 5);// 5分钟
-            Date time = calendar.getTime();
-            token = Jwts.builder()
-                    .setSubject(user.getId().toString())
-                    .setIssuedAt(now)//签发时间
-                    .setExpiration(time)//过期时间
-                    .signWith(SignatureAlgorithm.HS512, ConstantKey.SIGNING_KEY) //采用什么算法是可以自己选择的，不一定非要采用HS512
-                    .compact();
+            token = jwtHelper.generateToken(user);
             // 生成token end
 
             // 登录成功后，返回token到header里面

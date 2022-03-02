@@ -25,6 +25,28 @@ public class Image {
     @Column(name = "base64")
     private String base64;
 
+    @Column(name = "has_convert")
+    private Boolean hasConvert;
+
+    @Column(name = "webp")
+    private Boolean hasWebp;
+
+    public Boolean getHasConvert() {
+        return hasConvert;
+    }
+
+    public void setHasConvert(Boolean hasConvert) {
+        this.hasConvert = hasConvert;
+    }
+
+    public Boolean getHasWebp() {
+        return hasWebp;
+    }
+
+    public void setHasWebp(Boolean hasWebp) {
+        this.hasWebp = hasWebp;
+    }
+
     public String getBase64() {
         return base64;
     }
@@ -65,14 +87,19 @@ public class Image {
         this.id = id;
     }
 
-//    public Image() {
-//        this.id = ImageService.generateBaseFilename();
-//    }
+    public Image() {
+        this.id = ImageService.generateBaseFilename();
+        this.hasConvert = false;
+        this.hasWebp = false;
+    }
 
     public Image(String ext, Integer width, Integer height, String base64) {
+        this.id = ImageService.generateBaseFilename();
         this.ext = ext;
         this.width = width;
         this.height = height;
         this.base64 = base64;
+        this.hasConvert = false;
+        this.hasWebp = false;
     }
 }

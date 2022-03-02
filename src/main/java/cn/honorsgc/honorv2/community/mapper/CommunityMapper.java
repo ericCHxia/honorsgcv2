@@ -4,12 +4,13 @@ import cn.honorsgc.honorv2.community.convert.CommunityTypeConvert;
 import cn.honorsgc.honorv2.community.dto.*;
 import cn.honorsgc.honorv2.community.entity.Community;
 import cn.honorsgc.honorv2.community.entity.CommunityParticipant;
+import cn.honorsgc.honorv2.image.ImageConvert;
 import org.mapstruct.*;
 
 import java.util.Collection;
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring", uses = {CommunityTypeConvert.class})
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring", uses = {CommunityTypeConvert.class, ImageConvert.class})
 public interface CommunityMapper {
     CommunitySaveResponseBody communityToCommunitySaveResponseBody(Community community);
 
