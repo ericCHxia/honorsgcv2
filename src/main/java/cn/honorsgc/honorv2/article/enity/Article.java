@@ -40,6 +40,10 @@ public class Article {
     @Column(name = "typ")
     private Integer type;
 
+    @Column(name="have_comment")
+    @NotNull
+    private Integer have_comment;
+
     public Integer getType() {
         return type;
     }
@@ -110,5 +114,13 @@ public class Article {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getHave_comment() {
+        return have_comment;
+    }
+
+    public void setHave_comment(Integer have_comment) {
+        this.have_comment = have_comment;
     }
 }

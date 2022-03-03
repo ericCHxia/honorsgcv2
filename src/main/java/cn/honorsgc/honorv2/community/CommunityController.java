@@ -34,10 +34,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/community")
@@ -282,10 +279,9 @@ public class CommunityController {
 
     @DeleteMapping("/participant")
     @ApiOperation("删除参加者")
-    @Transactional
-    public GlobalResponseEntity<String> delparticipant(@ApiIgnore Authentication authentication,
+    public GlobalResponseEntity<String> delParticipant(@ApiIgnore Authentication authentication,
                                                        @RequestParam(value = "communityId") Long communityId,
-                                                       @RequestParam(value = "ids", required = false, defaultValue = "-1") List<Integer> ids) throws CommunityException {
+                                                       @ApiParam(value = "用户的编号") @RequestParam(value = "ids", required = false, defaultValue = "-1") Set<Long> ids) throws CommunityException {
 
         //检查共同体的有效性
         Optional<Community> optionalCommunity = repository.findById(communityId);
@@ -299,13 +295,14 @@ public class CommunityController {
         }
 
         //检查删除权限
-        User auth = (User) authentication.getPrincipal();//
-        if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) || !auth.equals(community.getUser())) {
+        User auth = (User) authentication.getPrincipal();
+        if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) && !auth.equals(community.getUser())) {
             throw new CommunityIllegalParameterException("您无权删除");
         }
 
-        //删除
-        communityParticipantRepository.deleteAllByIdIn(ids);
+        community.removeParticipant(ids);
+        repository.save(community);
+
         return new GlobalResponseEntity<>(0, "删除成功");
     }
 }

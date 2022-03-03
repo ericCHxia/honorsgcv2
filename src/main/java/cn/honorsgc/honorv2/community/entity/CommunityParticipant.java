@@ -13,11 +13,10 @@ public class CommunityParticipant {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "usrid", referencedColumnName = "id")
     private User user;
 
-    @Basic(fetch = FetchType.LAZY)
     @Column(name = "gttid")
     private Long communityId;
 
@@ -70,6 +69,7 @@ public class CommunityParticipant {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+        if (o instanceof User)return Objects.equals(user, o);
         if (o == null || getClass() != o.getClass()) return false;
         CommunityParticipant that = (CommunityParticipant) o;
         return Objects.equals(user, that.user) && Objects.equals(communityId, that.communityId);

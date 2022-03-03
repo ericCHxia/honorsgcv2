@@ -1,7 +1,6 @@
 package cn.honorsgc.honorv2.community.entity;
 
 import cn.honorsgc.honorv2.user.User;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -10,7 +9,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "gttdata")
-@JsonIgnoreProperties(value = { "hibernateLazyInitializer"})
 public class Community {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -183,5 +181,10 @@ public class Community {
 
     public void setEnrolling(Boolean enrolling) {
         this.enrolling = enrolling;
+    }
+
+    public void removeParticipant(Set<Long> userIds){
+        participants.removeIf(e->userIds.contains(e.getUser().getId()));
+        mentors.removeIf(e->userIds.contains(e.getUser().getId()));
     }
 }

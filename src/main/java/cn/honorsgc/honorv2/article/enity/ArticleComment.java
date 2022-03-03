@@ -4,6 +4,7 @@ import cn.honorsgc.honorv2.user.User;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.Date;
 
 @Entity
 @Table(name = "cmt")
@@ -15,7 +16,7 @@ public class ArticleComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usrid", referencedColumnName = "id")
-    private User users;
+    private User user;
 
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "contid")
@@ -25,13 +26,13 @@ public class ArticleComment {
     private String detail;
 
     @Column(name = "tim")
-    private Instant createTime;
+    private Date createTime;
 
-    public Instant getCreateTime() {
+    public Date getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Instant createTime) {
+    public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 
@@ -51,12 +52,12 @@ public class ArticleComment {
         this.contentId = contentId;
     }
 
-    public User getUsers() {
-        return users;
+    public User getUser() {
+        return user;
     }
 
-    public void setUsers(User users) {
-        this.users = users;
+    public void setUser(User users) {
+        this.user = users;
     }
 
     public Integer getId() {
