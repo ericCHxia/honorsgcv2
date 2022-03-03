@@ -11,13 +11,10 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,7 +31,6 @@ public class ImageController {
     @Autowired
     private ImageRepository repository;
 
-    private static final Pattern pattern = Pattern.compile("\\/image\\/([^\\/]*)\\/([^\\.]*)");
     private static final Pattern numPattern = Pattern.compile("^[-\\ ]?[\\d]*$");
 
     @PostMapping("/upload_image")
@@ -43,6 +39,20 @@ public class ImageController {
         service.convert(image);
         service.convertWebp(image);
         return ImageResponse.valuesOf(image);
+    }
+
+    @GetMapping("/upload_image/{name}")
+    public ImageResponse getImage(@PathVariable String name)throws ImageException{
+        if (name.contains(".")){
+            name = name.substring(0,name.lastIndexOf("."));
+        }
+        Optional<Image> optionalImage = repository.findById(name);
+
+        if (optionalImage.isEmpty()){
+            throw new ImageNotFoundException();
+        }
+
+        return ImageResponse.valuesOf(optionalImage.get());
     }
 
     @GetMapping("/image/{width}/{name}")
@@ -70,7 +80,7 @@ public class ImageController {
             Image image = optionalImage.get();
             useWebp = useWebp&&image.getHasWebp();
 
-            if (width.equalsIgnoreCase("org")||!image.getHasConvert()){
+            if (width.equalsIgnoreCase("org")||!image.getHasConvert()||Integer.parseInt(width)>image.getWidth()){
                 return writeImage(service.getImagePath(image),ImageService.extToContentType(image.getExt()));
             }
 

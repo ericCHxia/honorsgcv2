@@ -19,6 +19,8 @@ import cn.honorsgc.honorv2.user.UserRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,7 +31,6 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -52,6 +53,8 @@ public class CommunityController {
     private UserRepository userRepository;
     @Autowired
     private CommunityParticipantRepository communityParticipantRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(CommunityController.class);
 
     @PostMapping({"", "/"})
     @ApiOperation(value = "新建或者修改共同体")
@@ -140,13 +143,16 @@ public class CommunityController {
     public CommunityDetail getCommunity(@ApiIgnore Authentication authentication,
                                         @ApiParam(value = "编号") @PathVariable Long id) throws CommunityException {
         Optional<Community> optionalCommunity = repository.findById(id);
+        logger.info("012");
         if (optionalCommunity.isEmpty()) {
             throw new CommunityNotFoundException();
         }
         Community community = optionalCommunity.get();
+        logger.info("123");
         if (community.getState() != CommunityState.visible && !(community.getUser().equals(authentication.getPrincipal()) || authentication.getAuthorities().contains(GlobalAuthority.ADMIN))) {
             throw new CommunityNotFoundException();
         }
+        logger.info("456");
         return communityMapper.communityToCommunityDetail(community);
     }
 

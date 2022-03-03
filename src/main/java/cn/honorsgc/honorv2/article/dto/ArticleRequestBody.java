@@ -1,4 +1,4 @@
-package cn.honorsgc.honorv2.article;
+package cn.honorsgc.honorv2.article.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

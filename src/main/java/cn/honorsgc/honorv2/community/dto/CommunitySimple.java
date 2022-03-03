@@ -3,7 +3,6 @@ package cn.honorsgc.honorv2.community.dto;
 import cn.honorsgc.honorv2.community.entity.CommunityTypeDto;
 import cn.honorsgc.honorv2.image.ImageResponse;
 import cn.honorsgc.honorv2.user.dto.UserSimple;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.Serializable;

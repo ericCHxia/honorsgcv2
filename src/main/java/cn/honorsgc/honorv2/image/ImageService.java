@@ -21,7 +21,7 @@ import java.util.*;
 
 @Service
 public class ImageService {
-    private final Logger logger = LoggerFactory.getLogger(ImageService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
     public static final Integer[] available_width = {200, 400, 600, 800, 1024, 1280, 1366, 1440, 1600, 1920, 2560};
     public static final Set<Integer>  available_width_set = new HashSet<>(Arrays.asList(available_width));
 
@@ -80,12 +80,13 @@ public class ImageService {
     }
 
     public static String extToContentType(String ext)throws ImageException{
-        if (noChangeSet.contains(ext)){
+        if (noChangeSet.contains(ext.toLowerCase(Locale.ROOT))){
             return "image/"+ext;
         }
-        if (ext.equals("jpg")){
+        if (ext.equalsIgnoreCase("jpg")){
             return extToContentType("jpeg");
         }
+        logger.info(ext);
         throw new UnsupportedImageTypeException();
     }
 

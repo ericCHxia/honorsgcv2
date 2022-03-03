@@ -2,7 +2,6 @@ package cn.honorsgc.honorv2.community.convert;
 
 import cn.honorsgc.honorv2.community.entity.CommunityType;
 import cn.honorsgc.honorv2.community.repository.CommunityTypeRepository;
-import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

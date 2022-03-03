@@ -1,4 +1,4 @@
-package cn.honorsgc.honorv2.article;
+package cn.honorsgc.honorv2.article.dto;
 
 public class ArticlePostResponse {
     private String url;

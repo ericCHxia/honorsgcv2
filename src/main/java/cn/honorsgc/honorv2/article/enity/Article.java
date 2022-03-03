@@ -1,4 +1,4 @@
-package cn.honorsgc.honorv2.article;
+package cn.honorsgc.honorv2.article.enity;
 
 import cn.honorsgc.honorv2.user.User;
 import com.sun.istack.NotNull;

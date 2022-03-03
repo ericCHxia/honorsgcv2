@@ -1,6 +1,5 @@
 package cn.honorsgc.honorv2.community.entity;
 
-import cn.honorsgc.honorv2.community.entity.Community;
 import cn.honorsgc.honorv2.user.User;
 
 import javax.persistence.*;
