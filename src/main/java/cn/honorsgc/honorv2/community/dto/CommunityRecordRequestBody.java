@@ -1,6 +1,7 @@
 package cn.honorsgc.honorv2.community.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -8,10 +9,9 @@ import java.util.List;
 
 @Data
 public class CommunityRecordRequestBody implements Serializable {
-    private final Long user;
-    private final Long communityId;
+    private  Long communityId;
     @NotNull
-    private final String detail;
-    private final String cover;
-    private final List<Long> attendant;
+    private  String detail;
+    private  String cover;
+    private  List<Long> attendant;
 }

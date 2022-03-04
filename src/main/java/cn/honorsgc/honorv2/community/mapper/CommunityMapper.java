@@ -45,7 +45,6 @@ public interface CommunityMapper {
     @Mapping(source = "community.title", target = "communityTitle")
     CommunityRecordDto communityRecordToCommunityRecordDto(CommunityRecord communityRecord);
 
-    @Mapping(source = "user", target = "user")
     @Mapping(source = "communityId", target = "community")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateCommunityRecordFromCommunityRecordRequestBody(CommunityRecordRequestBody communityRecordRequestBody, @MappingTarget CommunityRecord communityRecord);

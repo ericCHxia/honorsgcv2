@@ -1,8 +1,10 @@
 package cn.honorsgc.honorv2.community;
 
+import cn.honorsgc.honorv2.article.expection.ArticleIllegalParameterException;
 import cn.honorsgc.honorv2.community.dto.*;
 import cn.honorsgc.honorv2.community.entity.Community;
 import cn.honorsgc.honorv2.community.entity.CommunityParticipant;
+import cn.honorsgc.honorv2.community.entity.CommunityRecord;
 import cn.honorsgc.honorv2.community.entity.CommunityType;
 import cn.honorsgc.honorv2.community.exception.CommunityAccessDenied;
 import cn.honorsgc.honorv2.community.exception.CommunityException;
@@ -10,12 +12,16 @@ import cn.honorsgc.honorv2.community.exception.CommunityIllegalParameterExceptio
 import cn.honorsgc.honorv2.community.exception.CommunityNotFoundException;
 import cn.honorsgc.honorv2.community.mapper.CommunityMapper;
 import cn.honorsgc.honorv2.community.repository.CommunityParticipantRepository;
+import cn.honorsgc.honorv2.community.repository.CommunityRecordRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityTypeRepository;
+import cn.honorsgc.honorv2.community.util.CommunityUtil;
 import cn.honorsgc.honorv2.core.GlobalAuthority;
 import cn.honorsgc.honorv2.core.GlobalResponseEntity;
 import cn.honorsgc.honorv2.user.User;
 import cn.honorsgc.honorv2.user.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -35,6 +41,7 @@ import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/community")
@@ -50,6 +57,11 @@ public class CommunityController {
     private UserRepository userRepository;
     @Autowired
     private CommunityParticipantRepository communityParticipantRepository;
+    @Autowired
+    private CommunityRecordRepository communityRecordRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
+    private CommunityUtil communityUtil=new CommunityUtil();
 
     private final Logger logger = LoggerFactory.getLogger(CommunityController.class);
 
@@ -304,5 +316,92 @@ public class CommunityController {
         repository.save(community);
 
         return new GlobalResponseEntity<>(0, "删除成功");
+    }
+
+    @PostMapping("/rec")
+    @ApiOperation("添加记录")
+    public CommunityRecord createRecord(@RequestBody CommunityRecordRequestBody recordRequestBody,
+                                @ApiIgnore Authentication authentication) throws CommunityException{
+        Long communityId = recordRequestBody.getCommunityId();
+        //检查共同体的有效性
+        Optional<Community> optionalCommunity = repository.findById(communityId);
+        if (optionalCommunity.isEmpty()) {
+            throw new CommunityIllegalParameterException("共同体不存在");
+        }
+
+        Community community = optionalCommunity.get();
+        if (community.getState() == CommunityState.notApproved) {
+            throw new CommunityIllegalParameterException("共同体不存在");
+        }
+
+        //判断当前登录人是否为参加者
+        User auth = (User) authentication.getPrincipal();
+        boolean isParticipant = community.getParticipants().stream().anyMatch(x->x.equals(auth));
+        boolean isMentor = community.getMentors().stream().anyMatch(x->x.equals(auth));
+
+        if(!isMentor&&!isParticipant){
+            throw new CommunityIllegalParameterException("您无权添加");
+        }
+
+
+        CommunityRecord communityRecord = new CommunityRecord();
+        communityMapper.updateCommunityRecordFromCommunityRecordRequestBody(recordRequestBody,communityRecord);
+        communityRecord.setUser(auth);
+        communityRecord.setCreateTime(new Date());
+
+        //return communityRecord;
+        return communityRecordRepository.save(communityRecord);
+    }
+
+    @GetMapping("/rec")
+    @ApiOperation("查看记录")
+    public List<CommunityRecord> getRecord(@ApiParam(value = "共同体编号")@RequestParam(value = "communityId") Long communityId,
+                                           @ApiIgnore Authentication authentication) throws CommunityException, JsonProcessingException {
+        Optional<Community> optionalCommunity = repository.findById(communityId);
+        if (optionalCommunity.isEmpty()) {
+            throw new CommunityIllegalParameterException("共同体不存在");
+        }
+
+        Community community = optionalCommunity.get();
+        if (community.getState() == CommunityState.notApproved) {
+            throw new CommunityIllegalParameterException("共同体不存在");
+        }
+
+        //判断当前登录人是否为参加者或管理员
+        User auth = (User) authentication.getPrincipal();
+        boolean isParticipant = community.getParticipants().stream().anyMatch(x->x.equals(auth));
+        boolean isMentor = community.getMentors().stream().anyMatch(x->x.equals(auth));
+        System.out.println();
+        if(!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)&&!isParticipant&&!isMentor){
+            throw new CommunityIllegalParameterException("您无权查看");
+        }
+        return communityRecordRepository.findAllByCommunity(community);
+    }
+
+    @DeleteMapping("rec")
+    @ApiOperation("删除记录")
+    public GlobalResponseEntity<String> deleteRecord(@ApiParam(value = "记录编号") @RequestParam List<Integer> ids,
+                                                     @ApiIgnore Authentication authentication) throws CommunityException{
+
+        List<CommunityRecord> communityRecordList=communityRecordRepository.findAllById(ids);
+        if(communityRecordList.isEmpty()){
+            throw new CommunityIllegalParameterException("未找到记录");
+        }
+
+        User auth = (User) authentication.getPrincipal();
+        //管理员直接删
+        if(!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) )
+        {
+            //若不是管理员过滤掉不是本人发布的信息
+            communityRecordList=communityRecordList.stream().filter(a-> Objects.equals(a.getUser().getId(), auth.getId())).collect(Collectors.toList());
+            if(communityRecordList.isEmpty()){
+                throw new CommunityIllegalParameterException("没有您发布的记录");
+            }
+        }
+
+        communityRecordRepository.deleteAll(communityRecordList);
+        GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
+        responseEntity.setMessage("delete successfully");
+        return responseEntity;
     }
 }

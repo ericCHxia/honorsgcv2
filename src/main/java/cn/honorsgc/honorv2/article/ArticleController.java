@@ -256,23 +256,21 @@ public class ArticleController {
 
         List<ArticleComment> articleCommentList=articleCommentRepository.findAllById(ids);
         if(articleCommentList.isEmpty()){
-            throw new ArticleNotFoundException();
+            throw new ArticleIllegalParameterException("没有评论");
         }
+
         User auth = (User) authentication.getPrincipal();
-        //管理员删除
-        if(authentication.getAuthorities().contains(GlobalAuthority.ADMIN) ){
-            //不根据id删，因为传来的id可能无效
-            articleCommentRepository.deleteAll(articleCommentList);
-        }
-        else {
-            //过滤掉不是本人发布的信息
+        //管理员直接删
+        if(!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) )
+         {
+            //若不是管理员过滤掉不是本人发布的信息
             articleCommentList=articleCommentList.stream().filter(a-> Objects.equals(a.getUser().getId(), auth.getId())).collect(Collectors.toList());
             if(articleCommentList.isEmpty()){
                 throw new ArticleIllegalParameterException("没有您发布的评论");
             }
-            articleCommentRepository.deleteAll(articleCommentList);
         }
-
+        //不根据id删，因为传来的id可能无效
+        articleCommentRepository.deleteAll(articleCommentList);
         GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
         responseEntity.setMessage("delete successfully");
         return responseEntity;
