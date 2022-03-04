@@ -35,7 +35,7 @@ public class CommunityRecord {
 
     @JoinTable(name = "gttatd",joinColumns = @JoinColumn(name = "recid"),inverseJoinColumns = @JoinColumn(name = "usrid"))
     @ManyToMany(cascade = CascadeType.DETACH)
-    private List<User> users;
+    private List<User> attendant;
 
     public void setId(Integer id) {
         this.id = id;
@@ -85,11 +85,11 @@ public class CommunityRecord {
         this.createTime = createTime;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<User> getAttendant() {
+        return attendant;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setAttendant(List<User> users) {
+        this.attendant = users;
     }
 }

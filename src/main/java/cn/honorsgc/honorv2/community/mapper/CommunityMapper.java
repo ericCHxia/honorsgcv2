@@ -1,16 +1,18 @@
 package cn.honorsgc.honorv2.community.mapper;
 
-import cn.honorsgc.honorv2.community.convert.CommunityTypeConvert;
+import cn.honorsgc.honorv2.community.convert.CommunityConvert;
 import cn.honorsgc.honorv2.community.dto.*;
 import cn.honorsgc.honorv2.community.entity.Community;
 import cn.honorsgc.honorv2.community.entity.CommunityParticipant;
+import cn.honorsgc.honorv2.community.entity.CommunityRecord;
 import cn.honorsgc.honorv2.image.ImageConvert;
+import cn.honorsgc.honorv2.user.UserConvert;
 import org.mapstruct.*;
 
 import java.util.Collection;
 import java.util.List;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring", uses = {CommunityTypeConvert.class, ImageConvert.class})
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring", uses = {CommunityConvert.class, ImageConvert.class, UserConvert.class})
 public interface CommunityMapper {
     CommunitySaveResponseBody communityToCommunitySaveResponseBody(Community community);
 
@@ -38,4 +40,14 @@ public interface CommunityMapper {
     CommunityParticipantResponse communityToCommunityParticipantResponse(Community community);
 
     CommunityDetail communityToCommunityDetail(Community community);
+
+    @Mapping(source = "community.id", target = "communityId")
+    @Mapping(source = "community.title", target = "communityTitle")
+    CommunityRecordDto communityRecordToCommunityRecordDto(CommunityRecord communityRecord);
+
+    @Mapping(source = "user", target = "user")
+    @Mapping(source = "communityId", target = "community")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateCommunityRecordFromCommunityRecordRequestBody(CommunityRecordRequestBody communityRecordRequestBody, @MappingTarget CommunityRecord communityRecord);
+
 }
