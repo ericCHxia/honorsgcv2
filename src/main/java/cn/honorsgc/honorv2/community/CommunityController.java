@@ -61,7 +61,8 @@ public class CommunityController {
     private CommunityRecordRepository communityRecordRepository;
     @Autowired
     private ObjectMapper objectMapper;
-    private CommunityUtil communityUtil=new CommunityUtil();
+    @Autowired
+    private CommunityUtil communityUtil;
 
     private final Logger logger = LoggerFactory.getLogger(CommunityController.class);
 
@@ -166,8 +167,22 @@ public class CommunityController {
     }
 
     @GetMapping("/type")
+    @ApiOperation("获取类型")
     public List<CommunityType> getType() {
         return typeRepository.findAll();
+    }
+
+    @PostMapping("/type")
+    @ApiOperation("添加类型")
+    public CommunityType createType(@ApiIgnore Authentication authentication,
+                                    @ApiParam(value = "共同体类型名")@RequestParam(value = "typeName") String typeName) throws  CommunityException{
+        User auth = (User) authentication.getPrincipal();
+        if(!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)){
+            throw new CommunityIllegalParameterException("您不是管理员");
+        }
+        CommunityType communityType=new CommunityType();
+        communityType.setName(typeName);
+        return typeRepository.save(communityType);
     }
 
     @GetMapping("/participant")
@@ -189,15 +204,8 @@ public class CommunityController {
                                 @RequestParam(value = "userId", required = false, defaultValue = "-1") Long userId) throws CommunityException {
 
         //检查共同体的有效性
-        Optional<Community> optionalCommunity = repository.findById(id);
-        if (optionalCommunity.isEmpty()) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
-
-        Community community = optionalCommunity.get();
-        if (community.getState() == CommunityState.notApproved) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
+        //判断共同体是否存在
+        Community community = communityUtil.CommunityIsExist(id);
 
         if (!community.getEnrolling()) {
             throw new CommunityIllegalParameterException("报名停止");
@@ -259,19 +267,11 @@ public class CommunityController {
     @PostMapping("approve")
     @ApiOperation("审核")
     public GlobalResponseEntity<String> approveJoin(@ApiIgnore Authentication authentication,
-                                                    @RequestParam(value = "id") Long id,
+                                                    @RequestParam(value = "communityId") Long communityId,
                                                     @RequestParam(value = "type", required = false, defaultValue = "1") Boolean type,
                                                     @RequestParam(value = "userId", required = false, defaultValue = "-1") List<Long> userIds) throws CommunityException {
-        //检查共同体的有效性
-        Optional<Community> optionalCommunity = repository.findById(id);
-        if (optionalCommunity.isEmpty()) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
-
-        Community community = optionalCommunity.get();
-        if (community.getState() == CommunityState.notApproved) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
+        //判断共同体是否存在
+        Community community = communityUtil.CommunityIsExist(communityId);
 
         //检查创建者
         User auth = (User) authentication.getPrincipal();
@@ -295,16 +295,8 @@ public class CommunityController {
                                                        @RequestParam(value = "communityId") Long communityId,
                                                        @ApiParam(value = "用户的编号") @RequestParam(value = "ids", required = false, defaultValue = "-1") Set<Long> ids) throws CommunityException {
 
-        //检查共同体的有效性
-        Optional<Community> optionalCommunity = repository.findById(communityId);
-        if (optionalCommunity.isEmpty()) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
-
-        Community community = optionalCommunity.get();
-        if (community.getState() == CommunityState.notApproved) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
+        //判断共同体是否存在
+        Community community = communityUtil.CommunityIsExist(communityId);
 
         //检查删除权限
         User auth = (User) authentication.getPrincipal();
@@ -323,16 +315,8 @@ public class CommunityController {
     public CommunityRecord createRecord(@RequestBody CommunityRecordRequestBody recordRequestBody,
                                 @ApiIgnore Authentication authentication) throws CommunityException{
         Long communityId = recordRequestBody.getCommunityId();
-        //检查共同体的有效性
-        Optional<Community> optionalCommunity = repository.findById(communityId);
-        if (optionalCommunity.isEmpty()) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
-
-        Community community = optionalCommunity.get();
-        if (community.getState() == CommunityState.notApproved) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
+        //判断共同体是否存在
+        Community community = communityUtil.CommunityIsExist(communityId);
 
         //判断当前登录人是否为参加者
         User auth = (User) authentication.getPrincipal();
@@ -357,16 +341,8 @@ public class CommunityController {
     @ApiOperation("查看记录")
     public List<CommunityRecord> getRecord(@ApiParam(value = "共同体编号")@RequestParam(value = "communityId") Long communityId,
                                            @ApiIgnore Authentication authentication) throws CommunityException, JsonProcessingException {
-        Optional<Community> optionalCommunity = repository.findById(communityId);
-        if (optionalCommunity.isEmpty()) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
-
-        Community community = optionalCommunity.get();
-        if (community.getState() == CommunityState.notApproved) {
-            throw new CommunityIllegalParameterException("共同体不存在");
-        }
-
+        //判断共同体是否存在
+        Community community = communityUtil.CommunityIsExist(communityId);
         //判断当前登录人是否为参加者或管理员
         User auth = (User) authentication.getPrincipal();
         boolean isParticipant = community.getParticipants().stream().anyMatch(x->x.equals(auth));
@@ -402,6 +378,17 @@ public class CommunityController {
         communityRecordRepository.deleteAll(communityRecordList);
         GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
         responseEntity.setMessage("delete successfully");
+        return responseEntity;
+    }
+
+    @GetMapping("term")
+    @ApiOperation("获取当前学期")
+    public GlobalResponseEntity<String> getTerm(@ApiParam(value = "共同体编号") @RequestParam Long communityId) throws CommunityException {
+        //判断共同体是否存在
+        Community cm=  communityUtil.CommunityIsExist(communityId);
+        Date createDate=cm.getCreateDate();
+        GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
+        responseEntity.setMessage(communityUtil.getTerm(createDate));
         return responseEntity;
     }
 }
