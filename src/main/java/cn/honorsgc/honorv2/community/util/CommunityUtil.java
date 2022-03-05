@@ -33,9 +33,10 @@ public class CommunityUtil {
         String year = date.toString().split("-")[0];
         String month = date.toString().split("-")[1];
         String term;
-        if (Integer.parseInt(month) < 9 && Integer.parseInt(month) >= 2)
-            term = "上";
-        else term = "下";
+        if (Integer.parseInt(month) < 9 && Integer.parseInt(month) >= 2) {
+            term = "下";
+            year= String.valueOf((Integer.parseInt(year)-1));
+        } else term = "上";
         System.out.println();
         return year + "学年" + term + "学期";
 
