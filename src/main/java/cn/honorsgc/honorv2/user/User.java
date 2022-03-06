@@ -34,6 +34,16 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "priv")
     private int privilege;
+    @Column(name = "ava")
+    private String avatar;
+
+    public String getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     @Override
     public Collection<GlobalAuthority> getAuthorities() {
         List<GlobalAuthority> auths = new ArrayList<>();
