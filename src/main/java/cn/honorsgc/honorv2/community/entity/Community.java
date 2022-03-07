@@ -1,5 +1,6 @@
 package cn.honorsgc.honorv2.community.entity;
 
+import cn.honorsgc.honorv2.core.Semester;
 import cn.honorsgc.honorv2.user.User;
 import org.hibernate.annotations.Where;
 
@@ -186,5 +187,9 @@ public class Community {
     public void removeParticipant(Set<Long> userIds){
         participants.removeIf(e->userIds.contains(e.getUser().getId()));
         mentors.removeIf(e->userIds.contains(e.getUser().getId()));
+    }
+
+    public Semester getSemester(){
+        return Semester.valuesOf(createDate);
     }
 }
