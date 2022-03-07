@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -204,7 +205,7 @@ public class CommunityController {
         //检查共同体的有效性
         //判断共同体是否存在
         Community community = communityUtil.communityIsExist(id);
-        if(!delete){
+        if (!delete) {
             if (!community.getEnrolling()) {
                 throw new CommunityIllegalParameterException("报名停止");
             }
@@ -241,20 +242,17 @@ public class CommunityController {
             participant.setCommunityId(id);
             participant.setValid(community.getRegistrationType() == 0);
             communityParticipantRepository.save(participant);
-        }
-
-        else {
+        } else {
             User user = (User) authentication.getPrincipal();
             boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.equals(user));
             boolean isMentor = community.getMentors().stream().anyMatch(x -> x.equals(user));
-            if(!isMentor&&!isParticipant){
+            if (!isMentor && !isParticipant) {
                 throw new CommunityIllegalParameterException("您未参加该共同体");
             }
             CommunityParticipant cp = communityParticipantRepository.findCommunityParticipantByUserAndCommunityId(user, id);
             cp.setCommunityId(null);
             communityParticipantRepository.save(cp);
         }
-
 
 
         GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
@@ -374,8 +372,7 @@ public class CommunityController {
 
         User auth = (User) authentication.getPrincipal();
         //管理员直接删
-        if(!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) )
-        {
+        if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             //若不是管理员过滤掉不是本人发布的信息
             communityRecordList = communityRecordList.stream().filter(a -> Objects.equals(a.getUser().getId(), auth.getId())).collect(Collectors.toList());
             if (communityRecordList.isEmpty()) {
