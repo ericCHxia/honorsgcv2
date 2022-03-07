@@ -4,6 +4,7 @@ import cn.honorsgc.honorv2.user.User;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "tagtable")
@@ -20,6 +21,13 @@ public class Tag {
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "usrid")
     private User user;
+
+    @OneToMany(mappedBy = "tag")
+    private List<Article> articles;
+
+    public void setArticles(List<Article> articles) {
+        this.articles = articles;
+    }
 
     public Tag(String name, User user) {
         this.name = name;
@@ -45,6 +53,8 @@ public class Tag {
     public User getUser() {
         return user;
     }
+
+    public Integer getCount(){ return articles.size();}
 
     public void setUser(User user) {
         this.user = user;
