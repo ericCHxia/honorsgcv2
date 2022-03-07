@@ -3,7 +3,6 @@ package cn.honorsgc.honorv2.user;
 import cn.honorsgc.honorv2.core.GlobalAuthority;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -34,7 +33,7 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "priv")
     private int privilege;
-    @Column(name = "ava")
+    @Column(name = "avatar")
     private String avatar;
 
     public String getAvatar() {
