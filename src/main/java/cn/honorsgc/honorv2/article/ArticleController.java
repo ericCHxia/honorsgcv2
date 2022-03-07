@@ -218,12 +218,20 @@ public class ArticleController {
         return responseEntity;
     }
 
+     @GetMapping("/cmt/{id}")
+    @ApiOperation(value = "获取评论")
+    public ArticleCommentResponse getComment(@ApiParam(value = "文章编号", required = true) @PathVariable Long id) {
+        List<ArticleComment> articleCommentList = articleCommentRepository.findArticleCommentsByArticle_Id(id);
+        List<ArticleCommentDto> articleCommentDtoList = mapper.articleCommentToArticleCommentDto(articleCommentList);
+        return ArticleCommentResponse.valuesOf(id, articleCommentDtoList);
+    }
+
     @GetMapping("/cmt")
     @ApiOperation(value = "获取评论")
-    public ArticleCommentResponse getComment(@ApiParam(value = "文章编号", required = true) @RequestParam Long id) {
-        List<ArticleComment> articleCommentList = articleCommentRepository.findArticlesCommentByContentId(id);
-        List<ArticleCommentDto> articleCommentDtoList = mapper.articleCommentToArticleCommentDto(articleCommentList);
-        return ArticleCommentResponse.valuesOf(articleCommentDtoList);
+    @Secured({"ROLE_ADMIN"})
+    public List<ArticleCommentAdminDto> getComments(){
+        List<ArticleComment> articleComments= articleCommentRepository.findAll();
+        return mapper.articleCommentToArticleCommentAdminDto(articleComments);
     }
 
     @PostMapping("/cmt")
