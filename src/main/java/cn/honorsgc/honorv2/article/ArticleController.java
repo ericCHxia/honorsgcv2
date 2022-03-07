@@ -156,6 +156,7 @@ public class ArticleController {
         article.setTitle(requestBody.getTitle());
         article.setDetail(requestBody.getDetail());
         article.setDescribe(requestBody.getDescribe());
+        article.setHaveComment(requestBody.getHaveComment());
     }
 
     @GetMapping("/change_state")
@@ -235,8 +236,8 @@ public class ArticleController {
         if (optionalArticle.isEmpty()) {
             throw new ArticleNotFoundException();
         }
-        Article article=optionalArticle.get();
-        if(article.getHave_comment()==0){
+        Article article = optionalArticle.get();
+        if (!article.getHaveComment()) {
             throw new ArticleIllegalParameterException("文章不允许评论");
         }
 
@@ -261,8 +262,7 @@ public class ArticleController {
 
         User auth = (User) authentication.getPrincipal();
         //管理员直接删
-        if(!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) )
-         {
+        if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             //若不是管理员过滤掉不是本人发布的信息
             articleCommentList=articleCommentList.stream().filter(a-> Objects.equals(a.getUser().getId(), auth.getId())).collect(Collectors.toList());
             if(articleCommentList.isEmpty()){
