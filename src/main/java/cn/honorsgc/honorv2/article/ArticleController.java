@@ -50,7 +50,7 @@ public class ArticleController {
 
     @GetMapping({"", "/"})
     @ApiOperation(value = "查找文章")
-    public Page<Article> index(@ApiIgnore Authentication authentication,
+    public Page<ArticleSimple> index(@ApiIgnore Authentication authentication,
                                @ApiParam(value = "页号") @RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber,
                                @ApiParam(value = "类型") @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
                                @ApiParam(value = "用户编号") @RequestParam(value = "user", required = false, defaultValue = "-1") Integer userId,
@@ -84,7 +84,8 @@ public class ArticleController {
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
 
         Pageable pageable = PageRequest.of(pageNumber, 25, sort);
-        return articleRepository.findAll(spec, pageable);
+        Page<Article> articlePage = articleRepository.findAll(spec, pageable);
+        return articlePage.map((x)->mapper.articleToArticleSimple(x));
     }
 
     @PostMapping({"", "/"})
