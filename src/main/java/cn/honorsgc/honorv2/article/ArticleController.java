@@ -185,7 +185,7 @@ public class ArticleController {
             return tagRepository.findAll();
         }
         if (search.equals("")) {
-            return articleService.getTagLimit(10);
+            return tagRepository.findAll();
         } else {
             return tagRepository.findTop10ByNameIsStartingWith(search);
         }
