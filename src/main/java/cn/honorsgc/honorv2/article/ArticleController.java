@@ -110,7 +110,7 @@ public class ArticleController {
             if (oldArticle.isEmpty()) {
                 throw new ArticleNotFoundException();
             }
-            if (!user.equals(oldArticle.get().getUser()) && user.getAuthorities().contains(GlobalAuthority.ADMIN)) {
+            if (!user.equals(oldArticle.get().getUser()) && !user.getAuthorities().contains(GlobalAuthority.ADMIN)) {
                 throw new ArticleAccessDeniedException();
             }
             newArticle = oldArticle.get();
