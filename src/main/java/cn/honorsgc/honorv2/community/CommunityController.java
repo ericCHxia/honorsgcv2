@@ -1,6 +1,5 @@
 package cn.honorsgc.honorv2.community;
 
-import cn.honorsgc.honorv2.article.expection.ArticleIllegalParameterException;
 import cn.honorsgc.honorv2.community.dto.*;
 import cn.honorsgc.honorv2.community.entity.Community;
 import cn.honorsgc.honorv2.community.entity.CommunityParticipant;
@@ -202,8 +201,9 @@ public class CommunityController {
                                                       @RequestParam(value = "type", required = false, defaultValue = "0") Integer type,
                                                       @RequestParam(value = "delete", required = false, defaultValue = "1") Boolean delete) throws CommunityException {
 
+        //检查共同体的有效性
         //判断共同体是否存在
-        Community community = communityUtil.CommunityIsExist(id);
+        Community community = communityUtil.communityIsExist(id);
         if(!delete){
             if (!community.getEnrolling()) {
                 throw new CommunityIllegalParameterException("报名停止");
@@ -269,7 +269,7 @@ public class CommunityController {
                                                     @RequestParam(value = "type", required = false, defaultValue = "1") Boolean type,
                                                     @RequestParam(value = "userId", required = false, defaultValue = "-1") List<Long> userIds) throws CommunityException {
         //判断共同体是否存在
-        Community community = communityUtil.CommunityIsExist(communityId);
+        Community community = communityUtil.communityIsExist(communityId);
 
         //检查创建者
         User auth = (User) authentication.getPrincipal();
@@ -294,14 +294,16 @@ public class CommunityController {
                                                        @ApiParam(value = "用户的编号") @RequestParam(value = "ids", required = false, defaultValue = "-1") Set<Long> ids) throws CommunityException {
 
         //判断共同体是否存在
-        Community community = communityUtil.CommunityIsExist(communityId);
+        Community community = communityUtil.communityIsExist(communityId);
         //检查删除权限
         User auth = (User) authentication.getPrincipal();
         if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) && !auth.equals(community.getUser())) {
             throw new CommunityIllegalParameterException("您无权删除");
         }
+
         community.removeParticipant(ids);
         repository.save(community);
+
         return new GlobalResponseEntity<>(0, "删除成功");
     }
 
@@ -349,7 +351,8 @@ public class CommunityController {
         return communityRecordRepository.findAllByCommunity(community);
     }
 
-    @DeleteMapping("rec")
+    //TODO: 共同体的创建者可以删除本共同体内的全部记录
+    @DeleteMapping("/record")
     @ApiOperation("删除记录")
     public GlobalResponseEntity<String> deleteRecord(@ApiParam(value = "记录编号") @RequestParam List<Integer> ids,
                                                      @ApiIgnore Authentication authentication) throws CommunityException {
@@ -361,7 +364,8 @@ public class CommunityController {
 
         User auth = (User) authentication.getPrincipal();
         //管理员直接删
-        if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
+        if(!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) )
+        {
             //若不是管理员过滤掉不是本人发布的信息
             communityRecordList = communityRecordList.stream().filter(a -> Objects.equals(a.getUser().getId(), auth.getId())).collect(Collectors.toList());
             if (communityRecordList.isEmpty()) {
