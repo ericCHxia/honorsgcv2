@@ -1,4 +1,4 @@
-package cn.honorsgc.honorv2.community.entity;
+package cn.honorsgc.honorv2.community.dto;
 
 import lombok.Data;
 

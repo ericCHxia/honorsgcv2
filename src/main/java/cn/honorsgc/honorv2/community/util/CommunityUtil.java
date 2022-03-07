@@ -16,7 +16,7 @@ public class CommunityUtil {
     @Autowired
     public CommunityRepository repository;
 
-    public Community CommunityIsExist(Long communityId) throws CommunityException {
+    public Community communityIsExist(Long communityId) throws CommunityException {
         Optional<Community> optionalCommunity = repository.findById(communityId);
         if (optionalCommunity.isEmpty()) {
             throw new CommunityIllegalParameterException("共同体不存在");
@@ -39,7 +39,5 @@ public class CommunityUtil {
         } else term = "上";
         System.out.println();
         return year + "学年" + term + "学期";
-
-
     }
 }
