@@ -334,21 +334,31 @@ public class CommunityController {
         return communityRecordRepository.save(communityRecord);
     }
 
-    @GetMapping("/rec")
+    @GetMapping("/rec/{id}")
     @ApiOperation("查看记录")
-    public List<CommunityRecord> getRecord(@ApiParam(value = "共同体编号") @RequestParam(value = "communityId") Long communityId,
-                                           @ApiIgnore Authentication authentication) throws CommunityException, JsonProcessingException {
+    public List<CommunityRecord> getRecord(@ApiParam(value = "共同体编号") @PathVariable(value = "id") Long communityId,
+                                           @ApiIgnore Authentication authentication) throws CommunityException {
         //判断共同体是否存在
         Community community = communityUtil.communityIsExist(communityId);
         //判断当前登录人是否为参加者或管理员
         User auth = (User) authentication.getPrincipal();
         boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.equals(auth));
         boolean isMentor = community.getMentors().stream().anyMatch(x -> x.equals(auth));
-        System.out.println();
+
         if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) && !isParticipant && !isMentor) {
             throw new CommunityIllegalParameterException("您无权查看");
         }
         return communityRecordRepository.findAllByCommunity(community);
+    }
+
+    @GetMapping("/rec")
+    @ApiOperation("搜索记录")
+    @Secured("ROLE_ADMIN")
+    public Page<CommunityRecordDto> getRecords(@RequestParam(value = "page",defaultValue = "0",required = false) Integer page) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        Pageable pageable = PageRequest.of(page, 25, sort);
+        Page<CommunityRecord> communityRecordPage = communityRecordRepository.findAll(pageable);
+        return communityRecordPage.map(communityRecord -> communityMapper.communityRecordToCommunityRecordDto(communityRecord));
     }
 
     //TODO: 共同体的创建者可以删除本共同体内的全部记录
