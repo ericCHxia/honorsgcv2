@@ -1,5 +1,6 @@
 package cn.honorsgc.honorv2.community.dto;
 
+import cn.honorsgc.honorv2.image.ImageResponse;
 import cn.honorsgc.honorv2.user.dto.UserSimple;
 import lombok.Data;
 
@@ -16,7 +17,7 @@ public class CommunityRecordDto implements Serializable {
     private final String communityTitle;
     @NotNull
     private final String detail;
-    private final String cover;
+    private final ImageResponse image;
     private final Date createTime;
     private final List<UserSimple> attendant;
 }

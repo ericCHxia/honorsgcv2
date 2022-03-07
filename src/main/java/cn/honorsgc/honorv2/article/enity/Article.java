@@ -42,7 +42,7 @@ public class Article {
 
     @Column(name="have_comment")
     @NotNull
-    private Integer have_comment;
+    private Boolean haveComment;
 
     public Integer getType() {
         return type;
@@ -116,11 +116,11 @@ public class Article {
         this.createTime = createTime;
     }
 
-    public Integer getHave_comment() {
-        return have_comment;
+    public Boolean getHaveComment() {
+        return haveComment;
     }
 
-    public void setHave_comment(Integer have_comment) {
-        this.have_comment = have_comment;
+    public void setHaveComment(Boolean have_comment) {
+        this.haveComment = have_comment;
     }
 }

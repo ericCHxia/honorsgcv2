@@ -242,7 +242,7 @@ public class ArticleController {
 
         ArticleComment articleComment = new ArticleComment();
         User auth = (User) authentication.getPrincipal();
-        articleComment.setContentId(id);
+        articleComment.setArticle(article);
         articleComment.setDetail(detail);
         articleComment.setUser(auth);
         articleComment.setCreateTime(new Date());

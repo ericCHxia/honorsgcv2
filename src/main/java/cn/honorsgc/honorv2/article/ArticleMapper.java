@@ -17,7 +17,7 @@ public interface ArticleMapper {
     List<ArticleCommentDto> articleCommentToArticleCommentDto(List<ArticleComment> articleComment);
 
     @Mapping(source = "tag.name", target = "tagName")
-    @Mapping(source = "have_comment", target = "haveComment")
+    @Mapping(source = "haveComment", target = "haveComment")
     ArticleSimple articleToArticleSimple(Article article);
 
     List<ArticleSimple> articleToArticleSimple(List<Article> article);

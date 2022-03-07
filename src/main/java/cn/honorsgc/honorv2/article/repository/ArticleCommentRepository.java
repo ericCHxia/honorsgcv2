@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ArticleCommentRepository extends JpaRepository<ArticleComment, Integer>, JpaSpecificationExecutor<ArticleComment> {
-    List<ArticleComment> findArticlesCommentByContentId(Long id);
+    List<ArticleComment> findArticleCommentsByArticle_Id(Long id);
     Integer deleteAllByIdIn(List<Integer> ids);
 }

@@ -41,6 +41,7 @@ public interface CommunityMapper {
 
     CommunityDetail communityToCommunityDetail(Community community);
 
+    @Mapping(target = "image", source = "cover")
     @Mapping(source = "community.id", target = "communityId")
     @Mapping(source = "community.title", target = "communityTitle")
     CommunityRecordDto communityRecordToCommunityRecordDto(CommunityRecord communityRecord);

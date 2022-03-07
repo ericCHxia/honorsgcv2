@@ -11,11 +11,7 @@ import java.util.List;
 public class ArticleCommentResponse implements Serializable {
     private final Long articleId;
     private final List<ArticleCommentDto> comments;
-    public static ArticleCommentResponse valuesOf(List<ArticleCommentDto> comments){
-        Long articleId = null;
-        if (comments.size()>0){
-            articleId = comments.get(0).getContentId();
-        }
+    public static ArticleCommentResponse valuesOf(Long articleId,List<ArticleCommentDto> comments){
         return new ArticleCommentResponse(articleId,comments);
     }
 }

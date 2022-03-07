@@ -31,6 +31,17 @@ public class ArticleRequestBody {
     @Max(2)
     private Integer state;
 
+    @NotNull
+    private Boolean haveComment;
+
+    public Boolean getHaveComment() {
+        return haveComment;
+    }
+
+    public void setHaveComment(Boolean haveComment) {
+        this.haveComment = haveComment;
+    }
+
     public Integer getState() {
         return state;
     }
