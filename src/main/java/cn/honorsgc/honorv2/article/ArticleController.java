@@ -173,9 +173,16 @@ public class ArticleController {
         return new GlobalResponseEntity<>();
     }
 
+    //TODO: 单文章多标签
     @GetMapping("/tag")
     @ApiOperation(value = "获取文章标签")
-    public List<Tag> getTags(@RequestParam(required = false, defaultValue = "") String search) {
+    public List<Tag> getTags(@RequestParam(required = false, defaultValue = "") String search,
+                             @RequestParam(required = false, defaultValue = "0") boolean admin,
+                             @ApiIgnore Authentication authentication) {
+        admin = admin&&authentication.getAuthorities().contains(GlobalAuthority.ADMIN);
+        if (admin){
+            return tagRepository.findAll();
+        }
         if (search.equals("")) {
             return articleService.getTagLimit(10);
         } else {
