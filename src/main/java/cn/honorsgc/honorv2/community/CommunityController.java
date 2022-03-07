@@ -378,15 +378,4 @@ public class CommunityController {
         responseEntity.setMessage("delete successfully");
         return responseEntity;
     }
-
-    @GetMapping("term")
-    @ApiOperation("获取当前学期")
-    public GlobalResponseEntity<String> getTerm(@ApiParam(value = "共同体编号") @RequestParam Long communityId) throws CommunityException {
-        //判断共同体是否存在
-        Community cm = communityUtil.CommunityIsExist(communityId);
-        Date createDate = cm.getCreateDate();
-        GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
-        responseEntity.setMessage(communityUtil.getTerm(createDate));
-        return responseEntity;
-    }
 }
