@@ -2,6 +2,7 @@ package cn.honorsgc.honorv2.article;
 
 import cn.honorsgc.honorv2.article.dto.ArticleCommentAdminDto;
 import cn.honorsgc.honorv2.article.dto.ArticleCommentDto;
+import cn.honorsgc.honorv2.article.dto.ArticleDto;
 import cn.honorsgc.honorv2.article.dto.ArticleSimple;
 import cn.honorsgc.honorv2.article.enity.Article;
 import cn.honorsgc.honorv2.article.enity.ArticleComment;
@@ -24,4 +25,6 @@ public interface ArticleMapper {
     ArticleCommentAdminDto articleCommentToArticleCommentAdminDto(ArticleComment articleComment);
 
     List<ArticleCommentAdminDto> articleCommentToArticleCommentAdminDto(List<ArticleComment> articleComment);
+
+    ArticleDto articleToArticleDto(Article article);
 }

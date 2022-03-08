@@ -132,18 +132,18 @@ public class ArticleController {
 
     @GetMapping("/{id}")
     @ApiOperation(value = "获取文章")
-    public Article getArticle(@ApiIgnore Authentication authentication,
+    public ArticleDto getArticle(@ApiIgnore Authentication authentication,
                               @PathVariable Long id) throws ArticleNotFoundException {
         Optional<Article> article = articleRepository.findById(id);
         if (article.isEmpty()) {
             throw new ArticleNotFoundException();
         }
         User user = (User) authentication.getPrincipal();
-        if (article.get().getUser().equals(user)) return article.get();
+        if (article.get().getUser().equals(user)) return mapper.articleToArticleDto(article.get());
         if (article.get().getState() != 1 && !authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             throw new ArticleNotFoundException();
         }
-        return article.get();
+        return mapper.articleToArticleDto(article.get());
     }
 
     public void postArticleDo(ArticleRequestBody requestBody, Article article) throws ArticleIllegalParameterException {
