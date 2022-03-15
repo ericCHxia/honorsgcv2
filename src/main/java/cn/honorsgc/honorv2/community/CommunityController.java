@@ -313,7 +313,7 @@ public class CommunityController {
                                         @ApiIgnore Authentication authentication) throws CommunityException {
         Long communityId = recordRequestBody.getCommunityId();
         //判断共同体是否存在
-        Community community = communityUtil.CommunityIsExist(communityId);
+        Community community = communityUtil.communityIsExist(communityId);
 
         //判断当前登录人是否为参加者
         User auth = (User) authentication.getPrincipal();
@@ -339,7 +339,7 @@ public class CommunityController {
     public List<CommunityRecord> getRecord(@ApiParam(value = "共同体编号") @RequestParam(value = "communityId") Long communityId,
                                            @ApiIgnore Authentication authentication) throws CommunityException, JsonProcessingException {
         //判断共同体是否存在
-        Community community = communityUtil.CommunityIsExist(communityId);
+        Community community = communityUtil.communityIsExist(communityId);
         //判断当前登录人是否为参加者或管理员
         User auth = (User) authentication.getPrincipal();
         boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.equals(auth));
