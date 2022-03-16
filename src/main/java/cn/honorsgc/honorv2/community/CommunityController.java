@@ -212,7 +212,7 @@ public class CommunityController {
             //检查是否能够审批 需要审批register是1
             //检查共同体人数限制
             //若不需要审批，则判断参与人数
-            else if (type == 0 && (community.getLimit() <= 0 || community.getLimit() <= community.getParticipantsCount()) && community.getRegistrationType() != 0) {
+            else if (type == 0 && (community.getLimit() <= 0 || community.getLimit() <= community.getParticipantsCount()) && community.getRegistrationType() == 0) {
                 throw new CommunityIllegalParameterException("参与人数超过限制");
             }
             if (type == 1 && community.getMentors().size() >= 2) {
