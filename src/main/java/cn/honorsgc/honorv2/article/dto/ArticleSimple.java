@@ -19,5 +19,5 @@ public class ArticleSimple implements Serializable {
     private final Date createTime;
     private final Integer type;
     @NotNull
-    private final Integer haveComment;
+    private final Boolean haveComment;
 }

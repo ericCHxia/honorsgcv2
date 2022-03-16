@@ -51,12 +51,12 @@ public class ArticleController {
     @GetMapping({"", "/"})
     @ApiOperation(value = "查找文章")
     public Page<ArticleSimple> index(@ApiIgnore Authentication authentication,
-                               @ApiParam(value = "页号") @RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber,
-                               @ApiParam(value = "类型") @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
-                               @ApiParam(value = "用户编号") @RequestParam(value = "user", required = false, defaultValue = "-1") Integer userId,
-                               @ApiParam(value = "状态", allowableValues = "0,1,2") @RequestParam(required = false) Integer state,
-                               @ApiParam(value = "搜索文本") @RequestParam(value = "search", required = false, defaultValue = "") String search,
-                               @ApiParam(value = "使用管理员权限") @RequestParam(required = false, defaultValue = "false") Boolean admin) throws ArticleException {
+                                     @ApiParam(value = "页号") @RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber,
+                                     @ApiParam(value = "类型") @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
+                                     @ApiParam(value = "用户编号") @RequestParam(value = "user", required = false, defaultValue = "-1") Integer userId,
+                                     @ApiParam(value = "状态", allowableValues = "0,1,2") @RequestParam(required = false) Integer state,
+                                     @ApiParam(value = "搜索文本") @RequestParam(value = "search", required = false, defaultValue = "") String search,
+                                     @ApiParam(value = "使用管理员权限") @RequestParam(required = false, defaultValue = "false") Boolean admin) throws ArticleException {
         User user = (User) authentication.getPrincipal();
 
         if (admin && state != null && user.getAuthorities().contains(GlobalAuthority.ADMIN)) {
@@ -85,7 +85,7 @@ public class ArticleController {
 
         Pageable pageable = PageRequest.of(pageNumber, 25, sort);
         Page<Article> articlePage = articleRepository.findAll(spec, pageable);
-        return articlePage.map((x)->mapper.articleToArticleSimple(x));
+        return articlePage.map((x) -> mapper.articleToArticleSimple(x));
     }
 
     @PostMapping({"", "/"})
@@ -110,7 +110,7 @@ public class ArticleController {
             if (oldArticle.isEmpty()) {
                 throw new ArticleNotFoundException();
             }
-            if (!user.equals(oldArticle.get().getUser()) && user.getAuthorities().contains(GlobalAuthority.ADMIN)) {
+            if (!user.equals(oldArticle.get().getUser()) && !user.getAuthorities().contains(GlobalAuthority.ADMIN)) {
                 throw new ArticleAccessDeniedException();
             }
             newArticle = oldArticle.get();
@@ -156,6 +156,7 @@ public class ArticleController {
         article.setTitle(requestBody.getTitle());
         article.setDetail(requestBody.getDetail());
         article.setDescribe(requestBody.getDescribe());
+        article.setHaveComment(requestBody.getHaveComment());
     }
 
     @GetMapping("/change_state")
@@ -179,12 +180,12 @@ public class ArticleController {
     public List<Tag> getTags(@RequestParam(required = false, defaultValue = "") String search,
                              @RequestParam(required = false, defaultValue = "0") boolean admin,
                              @ApiIgnore Authentication authentication) {
-        admin = admin&&authentication.getAuthorities().contains(GlobalAuthority.ADMIN);
-        if (admin){
+        admin = admin && authentication.getAuthorities().contains(GlobalAuthority.ADMIN);
+        if (admin) {
             return tagRepository.findAll();
         }
         if (search.equals("")) {
-            return articleService.getTagLimit(10);
+            return tagRepository.findAll();
         } else {
             return tagRepository.findTop10ByNameIsStartingWith(search);
         }
@@ -217,12 +218,20 @@ public class ArticleController {
         return responseEntity;
     }
 
+     @GetMapping("/cmt/{id}")
+    @ApiOperation(value = "获取评论")
+    public ArticleCommentResponse getComment(@ApiParam(value = "文章编号", required = true) @PathVariable Long id) {
+        List<ArticleComment> articleCommentList = articleCommentRepository.findArticleCommentsByArticle_Id(id);
+        List<ArticleCommentDto> articleCommentDtoList = mapper.articleCommentToArticleCommentDto(articleCommentList);
+        return ArticleCommentResponse.valuesOf(id, articleCommentDtoList);
+    }
+
     @GetMapping("/cmt")
     @ApiOperation(value = "获取评论")
-    public ArticleCommentResponse getComment(@ApiParam(value = "文章编号", required = true) @RequestParam Long id) {
-        List<ArticleComment> articleCommentList = articleCommentRepository.findArticlesCommentByContentId(id);
-        List<ArticleCommentDto> articleCommentDtoList = mapper.articleCommentToArticleCommentDto(articleCommentList);
-        return ArticleCommentResponse.valuesOf(articleCommentDtoList);
+    @Secured({"ROLE_ADMIN"})
+    public List<ArticleCommentAdminDto> getComments(){
+        List<ArticleComment> articleComments= articleCommentRepository.findAll();
+        return mapper.articleCommentToArticleCommentAdminDto(articleComments);
     }
 
     @PostMapping("/cmt")
@@ -235,14 +244,14 @@ public class ArticleController {
         if (optionalArticle.isEmpty()) {
             throw new ArticleNotFoundException();
         }
-        Article article=optionalArticle.get();
-        if(article.getHave_comment()==0){
+        Article article = optionalArticle.get();
+        if (!article.getHaveComment()) {
             throw new ArticleIllegalParameterException("文章不允许评论");
         }
 
         ArticleComment articleComment = new ArticleComment();
         User auth = (User) authentication.getPrincipal();
-        articleComment.setContentId(id);
+        articleComment.setArticle(article);
         articleComment.setDetail(detail);
         articleComment.setUser(auth);
         articleComment.setCreateTime(new Date());
@@ -252,20 +261,19 @@ public class ArticleController {
     @DeleteMapping("/cmt")
     @ApiOperation(value = "删除评论")
     public GlobalResponseEntity<String> deleteComment(@ApiParam(value = "评论编号") @RequestParam List<Integer> ids,
-                                                      @ApiIgnore Authentication authentication) throws ArticleException{
+                                                      @ApiIgnore Authentication authentication) throws ArticleException {
 
-        List<ArticleComment> articleCommentList=articleCommentRepository.findAllById(ids);
-        if(articleCommentList.isEmpty()){
+        List<ArticleComment> articleCommentList = articleCommentRepository.findAllById(ids);
+        if (articleCommentList.isEmpty()) {
             throw new ArticleIllegalParameterException("没有评论");
         }
 
         User auth = (User) authentication.getPrincipal();
         //管理员直接删
-        if(!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) )
-         {
+        if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             //若不是管理员过滤掉不是本人发布的信息
-            articleCommentList=articleCommentList.stream().filter(a-> Objects.equals(a.getUser().getId(), auth.getId())).collect(Collectors.toList());
-            if(articleCommentList.isEmpty()){
+            articleCommentList = articleCommentList.stream().filter(a -> Objects.equals(a.getUser().getId(), auth.getId())).collect(Collectors.toList());
+            if (articleCommentList.isEmpty()) {
                 throw new ArticleIllegalParameterException("没有您发布的评论");
             }
         }

@@ -7,9 +7,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-public class ArticleCommentDto implements Serializable {
+public class ArticleCommentAdminDto implements Serializable {
     private final Integer id;
     private final UserDto user;
+    private final ArticleSimple article;
     private final String detail;
     private final Date createTime;
 }

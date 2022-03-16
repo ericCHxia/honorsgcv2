@@ -1,9 +1,9 @@
 package cn.honorsgc.honorv2.article.enity;
 
 import cn.honorsgc.honorv2.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.util.Date;
 
 @Entity
@@ -18,9 +18,9 @@ public class ArticleComment {
     @JoinColumn(name = "usrid", referencedColumnName = "id")
     private User user;
 
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "contid")
-    private Long contentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contid")
+    private Article article;
 
     @Column(name = "detail", length = 1000)
     private String detail;
@@ -44,12 +44,13 @@ public class ArticleComment {
         this.detail = detail;
     }
 
-    public Long getContentId() {
-        return contentId;
+    @JsonIgnore
+    public Article getArticle() {
+        return article;
     }
 
-    public void setContentId(Long contentId) {
-        this.contentId = contentId;
+    public void setArticle(Article article) {
+        this.article = article;
     }
 
     public User getUser() {
