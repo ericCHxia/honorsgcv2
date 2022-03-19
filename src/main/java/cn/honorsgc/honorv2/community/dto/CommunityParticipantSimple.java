@@ -15,4 +15,5 @@ public class CommunityParticipantSimple implements Serializable {
     private final String qq;
     private final Integer type;
     private final Boolean valid;
+    private final String avatar;
 }

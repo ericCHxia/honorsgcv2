@@ -8,4 +8,7 @@ import java.io.Serializable;
 public class UserSimple implements Serializable {
     private final Long id;
     private final String name;
+    private final String userId;
+    private final String subject;
+    private final String avatar;
 }

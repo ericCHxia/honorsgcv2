@@ -77,7 +77,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
                 response.addHeader("refreshToken", refreshToken);
             }
             long end = System.currentTimeMillis();
-            logger.info("执行时间: {}", (end - start) + " 毫秒");
+            logger.debug("执行时间: {}", (end - start) + " 毫秒");
             Optional<User> user = userService.repository().findById(Long.parseLong(claims.getSubject()));
             if (user.isPresent()) {
                 return new UsernamePasswordAuthenticationToken(user.get(), null, user.get().getAuthorities());

@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface CommunityTypeRepository extends JpaRepository<CommunityType, Integer>, JpaSpecificationExecutor<CommunityType> {
+    Boolean existsByName(String name);
 }

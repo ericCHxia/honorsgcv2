@@ -5,7 +5,9 @@ import cn.honorsgc.honorv2.community.entity.Community;
 import cn.honorsgc.honorv2.community.exception.CommunityException;
 import cn.honorsgc.honorv2.community.exception.CommunityIllegalParameterException;
 import cn.honorsgc.honorv2.community.repository.CommunityRepository;
+import cn.honorsgc.honorv2.core.GlobalAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -16,13 +18,13 @@ public class CommunityUtil {
     @Autowired
     public CommunityRepository repository;
 
-    public Community communityIsExist(Long communityId) throws CommunityException {
+    public Community communityIsExist(Long communityId, Authentication authentication) throws CommunityException {
         Optional<Community> optionalCommunity = repository.findById(communityId);
         if (optionalCommunity.isEmpty()) {
             throw new CommunityIllegalParameterException("共同体不存在");
         }
         Community community = optionalCommunity.get();
-        if (community.getState() == CommunityState.notApproved) {
+        if (!authentication.getPrincipal().equals(community.getUser())&&community.getState() != CommunityState.visible&&!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             throw new CommunityIllegalParameterException("共同体不存在");
         }
         return community;

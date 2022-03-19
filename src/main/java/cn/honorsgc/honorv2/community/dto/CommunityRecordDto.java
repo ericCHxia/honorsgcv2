@@ -1,6 +1,7 @@
 package cn.honorsgc.honorv2.community.dto;
 
 import cn.honorsgc.honorv2.image.ImageResponse;
+import cn.honorsgc.honorv2.user.dto.UserDto;
 import cn.honorsgc.honorv2.user.dto.UserSimple;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @Data
 public class CommunityRecordDto implements Serializable {
     private final Integer id;
-    private final UserSimple user;
+    private final UserDto user;
     private final Long communityId;
     private final String communityTitle;
     @NotNull

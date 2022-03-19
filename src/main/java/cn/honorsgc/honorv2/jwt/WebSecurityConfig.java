@@ -43,7 +43,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/webjars/**",
             "/swagger-ui/**",
             "/upload/**",
-            "/image/**"
+            "/image/**",
+            "/hduhelper",
+            "/logout"
     };
 
     @Override
@@ -62,8 +64,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(), userService, jwtHelper))
                 .logout() // 默认注销行为为logout，可以通过下面的方式来修改
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login")// 设置注销成功后跳转页面，默认是跳转到登录页面;
-//                .logoutSuccessHandler(customLogoutSuccessHandler)
                 .permitAll();
     }
     @Bean
@@ -79,17 +79,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 使用自定义身份验证组件
         auth.authenticationProvider(new CustomAuthenticationProvider(userService));
     }
-//    @Bean
-//    public WebMvcConfigurer corsConfigurer() {
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/**")
-//                        .allowedOrigins("*")
-//                        .allowedMethods("*")
-//                        .allowedHeaders("*")
-//                        .allowCredentials(true).maxAge(3600);
-//            }
-//        };
-//    }
 }

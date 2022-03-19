@@ -17,7 +17,8 @@ public class ImageConvert {
     }
 
     public ImageResponse filenameToImageResponse(String filename) {
-        filename = filename.substring(0,filename.lastIndexOf('.'));
+        if (filename.trim().equals(""))return ImageResponse.valuesOf(filename);
+        if (filename.contains(".")) filename = filename.substring(0,filename.lastIndexOf('.'));
         Optional<Image> optionalImage = repository.findById(filename);
         if (optionalImage.isEmpty())return null;
         Image image = optionalImage.get();

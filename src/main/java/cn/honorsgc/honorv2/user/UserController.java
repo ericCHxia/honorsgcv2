@@ -65,22 +65,13 @@ public class UserController {
         return (User) authentication.getPrincipal();
     }
 
-    @PostMapping("ava")
+    @PostMapping("/avatar")
     @ApiOperation("设置头像")
     public User setAva(@ApiIgnore Authentication authentication,
-                       @ApiParam(required = true, value = "头像") @RequestParam String ava,
-                       @ApiParam(required = true, value = "用户编号") @RequestParam Long id) throws UserException {
-        Optional<User> optionalUser = repository.findById(id);
-        if(optionalUser.isEmpty()){
-            throw new UserIllegalParameterException("用户不存在");
-        }
-        User user = optionalUser.get();
+                       @ApiParam(required = true, value = "头像") @RequestParam String avatar) {
         User auth = (User) authentication.getPrincipal();
-        if(!auth.equals(user)){
-            throw new UserIllegalParameterException("您不是本人");
-        }
 
-        user.setAvatar(ava);
-        return repository.save(user);
+        auth.setAvatar(avatar);
+        return repository.save(auth);
     }
 }

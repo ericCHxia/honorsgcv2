@@ -4,25 +4,24 @@ import cn.honorsgc.honorv2.community.validator.ValidCommunityId;
 import cn.honorsgc.honorv2.community.validator.ValidCommunityTypeId;
 import cn.honorsgc.honorv2.core.CreateWish;
 import cn.honorsgc.honorv2.core.UpdateWish;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
-import org.hibernate.validator.group.GroupSequenceProvider;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
-import java.lang.reflect.Type;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("共同体请求体")
-@GroupSequenceProvider(CommunityRequestBodyGroupSequenceProvider.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CommunityRequestBody implements Serializable {
     @ApiModelProperty("编号")
     @NotNull(groups = UpdateWish.class)
@@ -45,7 +44,6 @@ public class CommunityRequestBody implements Serializable {
     @NotNull(groups = CreateWish.class)
     private Integer state;
     private Boolean enrolling;
-    private Boolean update;
     private Boolean needMentor;
     @NotNull(groups = CreateWish.class)
     @Range(min = 0,max = 1)

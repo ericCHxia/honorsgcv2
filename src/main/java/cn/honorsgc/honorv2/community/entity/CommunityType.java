@@ -33,6 +33,9 @@ public class CommunityType {
     }
 
     public Integer getCount(){
-        return this.communities.size();
+        if(communities==null){
+            return 0;
+        }
+        return communities.size();
     }
 }

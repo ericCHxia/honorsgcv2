@@ -50,7 +50,6 @@ public class JWTLoginFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         try {
             User user = new ObjectMapper().readValue(req.getInputStream(), User.class);
-            logger.info(user.getPassword());
             UsernamePasswordAuthenticationToken usernameToken =  new UsernamePasswordAuthenticationToken(
                     user.getUsername(),
                     user.getPassword(),

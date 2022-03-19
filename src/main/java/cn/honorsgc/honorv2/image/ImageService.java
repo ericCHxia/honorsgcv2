@@ -22,7 +22,7 @@ import java.util.*;
 @Service
 public class ImageService {
     private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
-    public static final Integer[] available_width = {200, 400, 600, 800, 1024, 1280, 1366, 1440, 1600, 1920, 2560};
+    public static final Integer[] available_width = {50, 200, 400, 600, 800, 1024, 1280, 1366, 1440, 1600, 1920, 2560};
     public static final Set<Integer>  available_width_set = new HashSet<>(Arrays.asList(available_width));
 
     private static final Set<String> noChangeSet = new HashSet<>(Arrays.asList("png","jpeg","gif","webp","avif"));

@@ -44,7 +44,7 @@ public class JWTHelper {
         // 设置签发时间
         calendar.setTime(new Date());
         // 设置过期时间
-        calendar.add(Calendar.MINUTE, expiration);// 5分钟
+        calendar.add(Calendar.SECOND, expiration);// 5分钟
         Date time = calendar.getTime();
         JwtBuilder builder = Jwts.builder()
                 .setSubject(user.getId().toString())

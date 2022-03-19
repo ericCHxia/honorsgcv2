@@ -2,6 +2,8 @@ package cn.honorsgc.honorv2.image;
 
 import cn.honorsgc.honorv2.image.exception.ImageException;
 import cn.honorsgc.honorv2.image.exception.ImageNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+@Api(tags = "图片管理")
 @RestController
 @EnableAsync
 public class ImageController {
@@ -30,6 +33,8 @@ public class ImageController {
     private ImageService service;
     @Autowired
     private ImageRepository repository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private static final Pattern numPattern = Pattern.compile("^[-\\ ]?[\\d]*$");
 
@@ -61,7 +66,6 @@ public class ImageController {
                                              @PathVariable String width) throws ImageException, IOException {
             String acceptHeader = request.getHeader("Accept");
             boolean useWebp = acceptHeader.contains("image/webp");
-
             //如果它的地址不是原图像也不是剪切后的图像的话
             if (!width.equalsIgnoreCase("org")&&!numPattern.matcher(width).matches()){
                 throw new ImageNotFoundException();

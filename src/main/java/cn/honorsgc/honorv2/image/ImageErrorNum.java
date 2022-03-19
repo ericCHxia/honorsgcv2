@@ -1,19 +1,16 @@
-package cn.honorsgc.honorv2.article;
+package cn.honorsgc.honorv2.image;
 
 import cn.honorsgc.honorv2.core.ErrorEnum;
 import cn.honorsgc.honorv2.core.GlobalResponseEntity;
 
-public enum ArticleErrorEnum implements ErrorEnum {
-    ACCESS_DENIED(40200,"没有权限"),
-    NOT_FOUND(40401,"文章不存在"),
-    ILLEGAL_PARAMETER(40202,"参数错误"),
-    TAG_IS_EXIST(40303,"标签已经存在"),
-    TAG_COUNT_IS_NOT_EMPTY(40304,"标签引用数不为0")
-    ;
+public enum ImageErrorNum implements ErrorEnum {
+    IMAGE_NOT_FOUND_EXCEPTION(40400,"照片未找到"),
+    IMAGE_SIZE_TOO_LARGE(40201,"照片过大"),
+    UNSUPPORTED_IMAGE_TYPE(40302,"不支持的照片格式");
     private final Integer errorCode;
     private final String errorMsg;
 
-    ArticleErrorEnum(Integer errorCode, String errorMsg) {
+    ImageErrorNum(Integer errorCode, String errorMsg) {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
     }
@@ -27,5 +24,4 @@ public enum ArticleErrorEnum implements ErrorEnum {
     public int getStatus() {
         return errorCode/100;
     }
-
 }

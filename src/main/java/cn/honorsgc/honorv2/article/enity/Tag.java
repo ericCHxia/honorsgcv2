@@ -54,7 +54,7 @@ public class Tag {
         return user;
     }
 
-    public Integer getCount(){ return articles.size();}
+    public Integer getCount(){ return articles!=null?articles.size():0;}
 
     public void setUser(User user) {
         this.user = user;

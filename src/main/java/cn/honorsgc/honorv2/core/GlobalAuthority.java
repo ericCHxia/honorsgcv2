@@ -1,5 +1,6 @@
 package cn.honorsgc.honorv2.core;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum GlobalAuthority implements GrantedAuthority {
@@ -20,5 +21,9 @@ public enum GlobalAuthority implements GrantedAuthority {
     @Override
     public String toString() {
         return this.role;
+    }
+
+    public static Boolean isAdmin(Authentication authentication){
+        return authentication.getAuthorities().contains(ADMIN);
     }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ImageResponse {
+    private final String name;
     private final ImageSrcsetSingle original;
     private final Integer width;
     private final Integer height;
@@ -27,6 +28,11 @@ public class ImageResponse {
             }
             srcset.add(ImageSrcsetSingle.valuesOf(image,maxWidth));
         }
-        return new ImageResponse(original,width,height,srcset.toArray(new ImageSrcsetSingle[0]),image.getBase64());
+        return new ImageResponse(image.getId(),original,width,height,srcset.toArray(new ImageSrcsetSingle[0]),image.getBase64());
+    }
+
+    public static ImageResponse valuesOf(String image){
+        ImageSrcsetSingle original = ImageSrcsetSingle.valuesOf(image,null);
+        return new ImageResponse("",original,null,-1,null,null);
     }
 }

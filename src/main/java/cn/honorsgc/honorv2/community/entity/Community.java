@@ -50,12 +50,12 @@ public class Community {
     @Column(name = "registration")
     private Integer registrationType;
 
-    @OneToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "gttid")
     @Where(clause = "typ = 0")
     Set<CommunityParticipant> participants;
 
-    @OneToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "gttid")
     @Where(clause = "typ = 1")
     Set<CommunityParticipant> mentors;
@@ -76,7 +76,7 @@ public class Community {
         this.needMentor = needMentor;
     }
 
-    public Integer getParticipantsCount(){
+    public Integer getParticipantsCount() {
         return participants.size();
     }
 
@@ -184,12 +184,12 @@ public class Community {
         this.enrolling = enrolling;
     }
 
-    public void removeParticipant(Set<Long> userIds){
-        participants.removeIf(e->userIds.contains(e.getUser().getId()));
-        mentors.removeIf(e->userIds.contains(e.getUser().getId()));
+    public void removeParticipant(Set<Long> userIds) {
+        participants.removeIf(e -> userIds.contains(e.getUser().getId()));
+        mentors.removeIf(e -> userIds.contains(e.getUser().getId()));
     }
 
-    public Semester getSemester(){
+    public Semester getSemester() {
         return Semester.valuesOf(createDate);
     }
 }

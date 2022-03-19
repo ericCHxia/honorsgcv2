@@ -1,9 +1,6 @@
 package cn.honorsgc.honorv2.article;
 
-import cn.honorsgc.honorv2.article.expection.ArticleAccessDeniedException;
-import cn.honorsgc.honorv2.article.expection.ArticleIllegalParameterException;
-import cn.honorsgc.honorv2.article.expection.ArticleNotFoundException;
-import cn.honorsgc.honorv2.article.expection.TagIsExistException;
+import cn.honorsgc.honorv2.article.expection.*;
 import cn.honorsgc.honorv2.core.ErrorEnum;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -25,5 +22,9 @@ public class ArticleExceptionHandler {
     @ExceptionHandler(TagIsExistException.class)
     public ErrorEnum tagIsExist(){
         return ArticleErrorEnum.TAG_IS_EXIST;
+    }
+    @ExceptionHandler(TagCountIsNotEmpty.class)
+    public ErrorEnum tagCountIsNotEmpty(){
+        return ArticleErrorEnum.TAG_COUNT_IS_NOT_EMPTY;
     }
 }

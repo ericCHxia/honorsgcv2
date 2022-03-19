@@ -53,7 +53,7 @@ public class GlobalResponse implements ResponseBodyAdvice<Object> {
                                   MediaType mediaType,
                                   Class<? extends HttpMessageConverter<?>> aClass,
                                   ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        if (responseObject instanceof Json || responseObject instanceof UiConfiguration || (responseObject instanceof ArrayList && ((ArrayList<?>) responseObject).get(0) instanceof SwaggerResource))
+        if (responseObject instanceof Json || responseObject instanceof UiConfiguration || (responseObject instanceof ArrayList && !((ArrayList<?>) responseObject).isEmpty() && ((ArrayList<?>) responseObject).get(0) instanceof SwaggerResource))
             return responseObject;
         if (serverHttpRequest.getURI().getPath().contains("swagger-resources"))return responseObject;
 

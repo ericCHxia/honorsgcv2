@@ -33,6 +33,7 @@ public interface CommunityMapper {
     @Mapping(target = "major", source = "user.subject")
     @Mapping(target = "college", source = "user.college")
     @Mapping(target = "qq", source = "user.qq")
+    @Mapping(target = "avatar", source = "user.avatar")
     CommunityParticipantSimple communityParticipantToCommunityParticipantSimple(CommunityParticipant communityParticipant);
 
     Collection<CommunityParticipantSimple> communityParticipantToCommunityParticipantSimple(Collection<CommunityParticipant> communityParticipant);
@@ -46,8 +47,9 @@ public interface CommunityMapper {
     @Mapping(source = "community.title", target = "communityTitle")
     CommunityRecordDto communityRecordToCommunityRecordDto(CommunityRecord communityRecord);
 
+    List<CommunityRecordDto> communityRecordToCommunityRecordDto(List<CommunityRecord> communityRecord);
+
     @Mapping(source = "communityId", target = "community")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateCommunityRecordFromCommunityRecordRequestBody(CommunityRecordRequestBody communityRecordRequestBody, @MappingTarget CommunityRecord communityRecord);
-
 }

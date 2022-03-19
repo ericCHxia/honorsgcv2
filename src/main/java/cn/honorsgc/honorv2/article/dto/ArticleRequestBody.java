@@ -1,5 +1,7 @@
 package cn.honorsgc.honorv2.article.dto;
 
+import cn.honorsgc.honorv2.core.CreateWish;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -7,23 +9,22 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 
 @ApiModel
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ArticleRequestBody {
-    @ApiModelProperty(value = "编号，有数据库自动生成，如果为空则为新建新的文章")
-    private Long id;
     @NotNull
     @ApiModelProperty(value = "标签的Id",required = true)
     private Long tag;
-    @NotNull
+    @NotNull(groups = {CreateWish.class})
     @ApiModelProperty(value = "标题",required = true)
     private String title;
-    @NotNull
+    @NotNull(groups = {CreateWish.class})
     @ApiModelProperty(value = "文章的描述",required = true)
     private String describe;
-    @NotNull
+    @NotNull(groups = {CreateWish.class})
     @ApiModelProperty(value = "内容",required = true)
     private String detail;
     @ApiModelProperty(value = "类型",allowableValues="0,1",required = true)
-    @NotNull
+    @NotNull(groups = {CreateWish.class})
     @Max(1)
     private Integer type;
 
@@ -31,7 +32,7 @@ public class ArticleRequestBody {
     @Max(2)
     private Integer state;
 
-    @NotNull
+    @NotNull(groups = {CreateWish.class})
     private Boolean haveComment;
 
     public Boolean getHaveComment() {
@@ -48,14 +49,6 @@ public class ArticleRequestBody {
 
     public void setState(Integer state) {
         this.state = state;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getTag() {
