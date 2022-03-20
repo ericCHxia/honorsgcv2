@@ -308,8 +308,8 @@ public class CommunityController {
             }
             //检查参与人
             User    user          = (User) authentication.getPrincipal();
-            boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.equals(user));
-            boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.equals(user));
+            boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.getUser().equals(user));
+            boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.getUser().equals(user));
             if (isParticipant || isMentor) {
                 if (community.getRegistrationType() == 0) {
                     throw new CommunityIllegalParameterException("您已参加");
@@ -329,8 +329,8 @@ public class CommunityController {
             communityParticipantRepository.save(participant);
         } else {
             User    user          = (User) authentication.getPrincipal();
-            boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.equals(user));
-            boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.equals(user));
+            boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.getUser().equals(user));
+            boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.getUser().equals(user));
             if (!isMentor && !isParticipant) {
                 throw new CommunityIllegalParameterException("您未参加该共同体");
             }
@@ -400,8 +400,8 @@ public class CommunityController {
 
         //判断当前登录人是否为参加者
         User    auth          = (User) authentication.getPrincipal();
-        boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.equals(auth));
-        boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.equals(auth));
+        boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.getUser().equals(auth));
+        boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.getUser().equals(auth));
 
         if (!isMentor && !isParticipant) {
             throw new CommunityIllegalParameterException("您无权添加");
@@ -425,8 +425,8 @@ public class CommunityController {
         Community community = communityUtil.communityIsExist(communityId, authentication);
         //判断当前登录人是否为参加者或管理员
         User    auth          = (User) authentication.getPrincipal();
-        boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.equals(auth));
-        boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.equals(auth));
+        boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.getUser().equals(auth));
+        boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.getUser().equals(auth));
 
         if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) && !isParticipant && !isMentor) {
             throw new CommunityIllegalParameterException("您无权查看");
