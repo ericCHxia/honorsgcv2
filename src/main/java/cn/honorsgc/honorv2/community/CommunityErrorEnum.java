@@ -1,4 +1,4 @@
-package cn.honorsgc.honorv2;
+package cn.honorsgc.honorv2.community;
 
 import cn.honorsgc.honorv2.core.ErrorEnum;
 import cn.honorsgc.honorv2.core.GlobalResponseEntity;

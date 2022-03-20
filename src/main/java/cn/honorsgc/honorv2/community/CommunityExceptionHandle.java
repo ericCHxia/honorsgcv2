@@ -1,6 +1,5 @@
 package cn.honorsgc.honorv2.community;
 
-import cn.honorsgc.honorv2.CommunityErrorEnum;
 import cn.honorsgc.honorv2.community.exception.CommunityAccessDenied;
 import cn.honorsgc.honorv2.community.exception.CommunityIllegalParameterException;
 import cn.honorsgc.honorv2.community.exception.CommunityNotFoundException;
