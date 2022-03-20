@@ -23,11 +23,6 @@ import java.io.Serializable;
 @ApiModel("共同体请求体")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommunityRequestBody implements Serializable {
-    @ApiModelProperty("编号")
-    @NotNull(groups = UpdateWish.class)
-    @Null(groups = CreateWish.class)
-    @ValidCommunityId
-    private Long id;
     @ValidCommunityTypeId
     @NotNull(groups = CreateWish.class)
     private Integer typeId;

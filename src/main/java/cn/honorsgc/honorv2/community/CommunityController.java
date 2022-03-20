@@ -117,7 +117,6 @@ public class CommunityController {
             throw new CommunityIllegalParameterException(objectError.getDefaultMessage());
         }
         User user = (User) authentication.getPrincipal();
-        requestBody.setId(id);
         Community community = repository.getById(id);
         if (!community.getUser().equals(user) && !authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             throw new CommunityAccessDenied();
