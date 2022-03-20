@@ -16,7 +16,7 @@ import java.util.List;
 public interface CommunityMapper {
     CommunitySaveResponseBody communityToCommunitySaveResponseBody(Community community);
 
-    @Mapping(source = "state", target = "state", defaultValue = "0")
+    @Mapping(source = "state", target = "state")
     @Mapping(source = "typeId", target = "type")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateCommunityFromCommunityRequestBody(CommunityRequestBody communityRequestBody, @MappingTarget Community community);

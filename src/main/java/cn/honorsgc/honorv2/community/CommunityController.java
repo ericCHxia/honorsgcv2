@@ -123,7 +123,7 @@ public class CommunityController {
             throw new CommunityAccessDenied();
         }
 
-        // 如果不是管理员的话，就将文章的状态设为null，在转换器中能够自动转换为 `CommunityState.notApproved`
+        // 如果不是管理员的话，就将文章的状态设为null，就不会改变当前状态
         if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             requestBody.setState(null);
         }
