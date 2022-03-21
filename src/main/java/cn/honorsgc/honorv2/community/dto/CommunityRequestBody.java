@@ -36,7 +36,6 @@ public class CommunityRequestBody implements Serializable {
     private String img;
     @NotNull(groups = CreateWish.class)
     private Integer limit;
-    @NotNull(groups = CreateWish.class)
     private Integer state;
     private Boolean enrolling;
     private Boolean needMentor;

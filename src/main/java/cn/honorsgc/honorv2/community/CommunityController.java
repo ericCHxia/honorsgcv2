@@ -90,6 +90,8 @@ public class CommunityController {
         Community community = new Community();
         community.setUser(user);
         community.setCreateDate(new Date());
+        community.setState(0);
+        community.setEnrolling(true);
         // 如果不是管理员的话，就将文章的状态设为null，在转换器中能够自动转换为 `CommunityState.notApproved`
         if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             requestBody.setState(null);
