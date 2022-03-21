@@ -7,10 +7,12 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletResponse;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalHandler {
     @ExceptionHandler(PageNotFoundException.class)
     public Object pageNotFoundHandler(HttpServletResponse response){
@@ -22,11 +24,6 @@ public class GlobalHandler {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return new GlobalResponseEntity<>(404,exception.getMessage());
     }
-//    @ExceptionHandler(value = Exception.class)
-//    public Object accessDeniedExceptionHandler(HttpServletResponse response, ApiException exception){
-//        response.setStatus(JWTErrorEnum.expired.getStatus());
-//        return new GlobalResponseEntity<>(404,exception.getMessage());
-//    }
 
     @ExceptionHandler(value = {ExpiredJwtException.class})
     public Object expiredJwtException(HttpServletResponse response) {
@@ -38,5 +35,10 @@ public class GlobalHandler {
     public Object unsupportedJwtException(HttpServletResponse response) {
         response.setStatus(JWTErrorEnum.unsupported.getStatus());
         return JWTErrorEnum.unsupported.responseEntity();
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ErrorEnum methodArgumentTypeMismatchException(){
+        return CoreErrorEnum.PAGE_NOT_FOUND;
     }
 }
