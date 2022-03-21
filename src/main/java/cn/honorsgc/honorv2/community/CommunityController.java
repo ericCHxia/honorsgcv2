@@ -204,7 +204,7 @@ public class CommunityController {
             throw new CommunityNotFoundException();
         }
         Community community = optionalCommunity.get();
-        if (community.getState() != CommunityState.visible && !(community.getUser().equals(authentication.getPrincipal()) || authentication.getAuthorities().contains(GlobalAuthority.ADMIN))) {
+        if (community.getState() != CommunityState.visible && !community.getUser().equals(authentication.getPrincipal())&& !authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             throw new CommunityNotFoundException();
         }
         return communityMapper.communityToCommunityDetail(community);
@@ -425,14 +425,7 @@ public class CommunityController {
                                               @ApiIgnore Authentication authentication) throws CommunityException {
         //判断共同体是否存在
         Community community = communityUtil.communityIsExist(communityId, authentication);
-        //判断当前登录人是否为参加者或管理员
-        User    auth          = (User) authentication.getPrincipal();
-        boolean isParticipant = community.getParticipants().stream().anyMatch(x -> x.getUser().equals(auth));
-        boolean isMentor      = community.getMentors().stream().anyMatch(x -> x.getUser().equals(auth));
 
-        if (!authentication.getAuthorities().contains(GlobalAuthority.ADMIN) && !isParticipant && !isMentor) {
-            throw new CommunityIllegalParameterException("您无权查看");
-        }
         return communityMapper.communityRecordToCommunityRecordDto(communityRecordRepository.findAllByCommunity(community));
     }
 
