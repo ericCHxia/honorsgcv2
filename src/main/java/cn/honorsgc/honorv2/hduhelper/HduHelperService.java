@@ -39,7 +39,7 @@ public class HduHelperService {
         RestTemplate restTemplate = new RestTemplate();
         HduHelperTokenResponse response;
         try {
-            response = restTemplate.getForObject("https://api.hduhelp.com/oauth/token?grant_type={grant_type}&client_id={client_id}&client_secret={client_secret}&code={code}",
+            response = restTemplate.getForObject(hduHelperConfig.baseUrl+"/oauth/token?grant_type={grant_type}&client_id={client_id}&client_secret={client_secret}&code={code}",
                     HduHelperTokenResponse.class,map);
         }catch (HttpClientErrorException e){
             throw new HduHelperGetTokenException("Invalid code");
