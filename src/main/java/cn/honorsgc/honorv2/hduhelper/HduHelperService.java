@@ -24,8 +24,6 @@ public class HduHelperService {
     private static final Logger logger = LoggerFactory.getLogger(HduHelperService.class);
     @Autowired
     private HduHelperConfig hduHelperConfig;
-    @Autowired
-    private UserService userService;
 
     public HduHelperToken getToken(String code) throws HduHelperException {
         logger.debug("TOKEN: "+code);
