@@ -16,6 +16,7 @@ public class UserDto implements Serializable {
     private final String college;
     private final String qq;
     private final String avatar;
+    private final String phone;
     private final int privilege;
     private final Collection<GlobalAuthority> authorities;
 }

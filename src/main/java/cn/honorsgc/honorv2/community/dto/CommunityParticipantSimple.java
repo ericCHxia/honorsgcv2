@@ -13,6 +13,7 @@ public class CommunityParticipantSimple implements Serializable {
     private final String major;
     private final String college;
     private final String qq;
+    private final String phone;
     private final Integer type;
     private final Boolean valid;
     private final String avatar;

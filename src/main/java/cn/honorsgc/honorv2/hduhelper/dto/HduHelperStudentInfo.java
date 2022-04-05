@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class HduHelperUserInfo implements Serializable {
+public class HduHelperStudentInfo implements Serializable {
     @JsonProperty("CLASSID")
     private String classId;
     @JsonProperty("DORMBUILDING")
