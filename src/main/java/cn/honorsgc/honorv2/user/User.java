@@ -33,8 +33,10 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "priv")
     private int privilege;
-    @Column(name = "avatar")
+    @Column(name = "avatar",columnDefinition = "varchar(50) NOT NULL")
     private String avatar;
+    @Column(name = "phone",columnDefinition = "varchar(15) NOT NULL DEFAULT ''")
+    private String phone;
 
     public String getAvatar() {
         return avatar;

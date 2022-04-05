@@ -10,4 +10,5 @@ import org.springframework.context.annotation.Configuration;
 public class HduHelperConfig {
     String id;
     String secret;
+    String baseUrl="https://api.hduhelp.com";
 }

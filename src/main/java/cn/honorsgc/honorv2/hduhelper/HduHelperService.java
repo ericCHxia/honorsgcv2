@@ -39,7 +39,7 @@ public class HduHelperService {
         RestTemplate restTemplate = new RestTemplate();
         HduHelperTokenResponse response;
         try {
-            response = restTemplate.getForObject("https://api.hduhelp.com/oauth/token?grant_type={grant_type}&client_id={client_id}&client_secret={client_secret}&code={code}",
+            response = restTemplate.getForObject(hduHelperConfig.baseUrl+"/oauth/token?grant_type={grant_type}&client_id={client_id}&client_secret={client_secret}&code={code}",
                     HduHelperTokenResponse.class,map);
         }catch (HttpClientErrorException e){
             throw new HduHelperGetTokenException("Invalid code");
@@ -61,11 +61,33 @@ public class HduHelperService {
         return response.getData();
     }
 
-    public HduHelperUserInfo getUserInfo(String token)throws HduHelperException{
+    public <T extends HduHelperResponse<?>> ResponseEntity<T> get(String path, String token,  Class<T> responseType){
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization","token "+token);
-        ResponseEntity<HduHelperUserInfoResponse> response = restTemplate.exchange("https://api.hduhelp.com/base/student/info", HttpMethod.GET,new HttpEntity<String>(headers),HduHelperUserInfoResponse.class);
+        return restTemplate.exchange(hduHelperConfig.baseUrl+path, HttpMethod.GET,new HttpEntity<String>(headers), responseType);
+    }
+
+    public HduHelperStudentInfo getStudentInfo(String token)throws HduHelperException{
+        ResponseEntity<HduHelperStudentInfoResponse> response = get("/base/student/info",token,HduHelperStudentInfoResponse.class);
+        if (response.getStatusCode()!= HttpStatus.OK||response.getBody()==null){
+            logger.debug("INFO: "+ Objects.requireNonNull(response.getBody()).getMsg());
+            throw new HduHelperGetUserInfoException();
+        }
+        return response.getBody().getData();
+    }
+
+    public HduHelperPersonInfo getPersonInfo(String token)throws HduHelperException{
+        ResponseEntity<HduHelperPersonInfoResponse> response = get("/base/person/info",token,HduHelperPersonInfoResponse.class);
+        if (response.getStatusCode()!= HttpStatus.OK||response.getBody()==null){
+            logger.debug("INFO: "+ Objects.requireNonNull(response.getBody()).getMsg());
+            throw new HduHelperGetUserInfoException();
+        }
+        return response.getBody().getData();
+    }
+
+    public HduHelperPhoneInfo getPhoneInfo(String token) throws HduHelperException {
+        ResponseEntity<HduHelperPhoneInfoResponse> response = get("/base/healthcheckin/phone",token,HduHelperPhoneInfoResponse.class);
         if (response.getStatusCode()!= HttpStatus.OK||response.getBody()==null){
             logger.debug("INFO: "+ Objects.requireNonNull(response.getBody()).getMsg());
             throw new HduHelperGetUserInfoException();
