@@ -24,6 +24,8 @@ class UserServiceTest {
         user.setName("甲");
         user.setPrivilege(0);
         user.setClassId("1");
+        user.setAvatar("");
+        user.setPhone("");
         user.setCollege("卓越学院");
         user.setSubject("无专业");
         repository.save(user);
