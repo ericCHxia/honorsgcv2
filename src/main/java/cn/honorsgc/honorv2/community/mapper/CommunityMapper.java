@@ -32,6 +32,7 @@ public interface CommunityMapper {
     @Mapping(target = "userID", source = "user.userId")
     @Mapping(target = "major", source = "user.subject")
     @Mapping(target = "college", source = "user.college")
+    @Mapping(target = "phone", source = "user.phone")
     @Mapping(target = "qq", source = "user.qq")
     @Mapping(target = "avatar", source = "user.avatar")
     CommunityParticipantSimple communityParticipantToCommunityParticipantSimple(CommunityParticipant communityParticipant);
