@@ -1,6 +1,8 @@
 package cn.honorsgc.honorv2.community.entity;
 
 import cn.honorsgc.honorv2.user.User;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -17,8 +19,11 @@ public class CommunityParticipant {
     @JoinColumn(name = "usrid", referencedColumnName = "id")
     private User user;
 
-    @Column(name = "gttid")
-    private Long communityId;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "gttid")
+    @Getter
+    @Setter
+    private Community community;
 
     @Column(name = "typ")
     private Integer type;
@@ -40,14 +45,6 @@ public class CommunityParticipant {
 
     public void setType(Integer type) {
         this.type = type;
-    }
-
-    public Long getCommunityId() {
-        return communityId;
-    }
-
-    public void setCommunityId(Long communityId) {
-        this.communityId = communityId;
     }
 
     public User getUser() {
@@ -72,11 +69,11 @@ public class CommunityParticipant {
         if (o instanceof User)return Objects.equals(user, o);
         if (o == null || getClass() != o.getClass()) return false;
         CommunityParticipant that = (CommunityParticipant) o;
-        return Objects.equals(user, that.user) && Objects.equals(communityId, that.communityId);
+        return Objects.equals(user, that.user) && Objects.equals(community, that.community);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, communityId);
+        return Objects.hash(user, community);
     }
 }

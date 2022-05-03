@@ -2,10 +2,13 @@ package cn.honorsgc.honorv2.community.entity;
 
 import cn.honorsgc.honorv2.core.Semester;
 import cn.honorsgc.honorv2.user.User;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -59,6 +62,12 @@ public class Community {
     @JoinColumn(name = "gttid")
     @Where(clause = "typ = 1")
     Set<CommunityParticipant> mentors;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "gttid")
+    @Getter
+    @Setter
+    List<CommunityRecord> records;
 
     public Integer getRegistrationType() {
         return registrationType;
