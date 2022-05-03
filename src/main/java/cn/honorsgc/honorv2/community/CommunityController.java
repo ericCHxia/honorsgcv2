@@ -6,7 +6,6 @@ import cn.honorsgc.honorv2.community.entity.Community;
 import cn.honorsgc.honorv2.community.entity.CommunityParticipant;
 import cn.honorsgc.honorv2.community.entity.CommunityRecord;
 import cn.honorsgc.honorv2.community.entity.CommunityType;
-import cn.honorsgc.honorv2.community.excel.CommunityParticipantExport;
 import cn.honorsgc.honorv2.community.exception.CommunityAccessDenied;
 import cn.honorsgc.honorv2.community.exception.CommunityException;
 import cn.honorsgc.honorv2.community.exception.CommunityIllegalParameterException;
@@ -20,7 +19,7 @@ import cn.honorsgc.honorv2.community.util.CommunityUtil;
 import cn.honorsgc.honorv2.core.*;
 import cn.honorsgc.honorv2.user.User;
 import cn.honorsgc.honorv2.user.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,6 +41,8 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.persistence.criteria.Predicate;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -277,9 +278,13 @@ public class CommunityController {
         if (userIds != null && userIds.size() > 0) {
             participants.removeIf(p -> !userIds.contains(p.getUser().getId()));
         }
-        response.setHeader("Content-Disposition", headerValue);
+        List<CommunityParticipantExcel> participantExcels = communityMapper.toCommunityParticipantExcel(participants,community);
+        // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
+        response.setContentType("application/octet-stream");
+        response.setCharacterEncoding("utf-8");
+        response.setHeader("Content-disposition", headerValue);
 
-        CommunityParticipantExport.valueOf(participants).export(response);
+        EasyExcel.write(response.getOutputStream(), CommunityParticipantExcel.class).sheet("模板").doWrite(participantExcels);
     }
 
     @PostMapping("/join")
@@ -326,7 +331,7 @@ public class CommunityController {
             CommunityParticipant participant = new CommunityParticipant();
             participant.setUser(user);
             participant.setType(type);
-            participant.setCommunityId(id);
+            participant.setCommunity(community);
             participant.setValid(community.getRegistrationType() == 0);
             communityParticipantRepository.save(participant);
         } else {
@@ -337,7 +342,7 @@ public class CommunityController {
                 throw new CommunityIllegalParameterException("您未参加该共同体");
             }
             CommunityParticipant cp = communityParticipantRepository.findCommunityParticipantByUserAndCommunityId(user, id);
-            cp.setCommunityId(null);
+            cp.setCommunity(null);
             communityParticipantRepository.save(cp);
         }
 
