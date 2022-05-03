@@ -57,6 +57,7 @@ public class GlobalResponse implements ResponseBodyAdvice<Object> {
             return responseObject;
         if (serverHttpRequest.getURI().getPath().contains("swagger-resources"))return responseObject;
 
+        // 是否为ErrorEnum
         if (responseObject instanceof ErrorEnum) {
             ErrorEnum errorEnum = (ErrorEnum) responseObject;
             serverHttpResponse.setStatusCode(HttpStatus.valueOf(errorEnum.getStatus()));
