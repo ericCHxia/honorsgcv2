@@ -5,4 +5,4 @@ EXPOSE 8080
 WORKDIR /work
 COPY target/honorv2*.jar /app.jar
 
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java","--add-opens","java.base/java.lang=ALL-UNNAMED","-jar","/app.jar"]
