@@ -33,8 +33,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build
-        run: mvn package
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.2.0
+        with:
+          distribution: 'microsoft'
+          java-version: '17.0'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.0.0
         with:
