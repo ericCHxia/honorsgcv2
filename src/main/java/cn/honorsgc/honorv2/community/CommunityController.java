@@ -358,7 +358,7 @@ public class CommunityController {
 
         //检查创建者
         User auth = (User) authentication.getPrincipal();
-        if (!auth.equals(community.getUser()))
+        if (!auth.equals(community.getUser())&&!authentication.getAuthorities().contains(GlobalAuthority.ADMIN))
             throw new CommunityIllegalParameterException("您不是创建者");
 
         Specification<CommunityParticipant> specification = (root, query, cb) -> cb.and(cb.equal(root.get("communityId"), community.getId()), root.get("user").get("id").in(userIds));
