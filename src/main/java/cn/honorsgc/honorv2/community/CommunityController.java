@@ -144,8 +144,14 @@ public class CommunityController {
                                                 @ApiParam(value = "搜索文本") @RequestParam(value = "search", required = false, defaultValue = "") String search,
                                                 @ApiParam(value = "使用管理员权限") @RequestParam(required = false, defaultValue = "false") Boolean admin,
                                                 @ApiParam(value = "参与用户") @RequestParam(value = "participant", required = false, defaultValue = "-1") Long participantId,
+                                                @ApiParam(value = "页面大小") @RequestParam(value = "page_size", required = false, defaultValue = "25") Integer pageSize,
                                                 @RequestParam(value = "mentor", required = false, defaultValue = "-1") Long mentorId,
                                                 @RequestParam(value = "semester", required = false, defaultValue = "-1") Integer semester) throws CommunityException {
+        if (pageSize>50)
+        {
+            throw new CommunityIllegalParameterException("page_size 应小于等于50");
+        }
+
         //TODO 实现参与用户 和 管理用户的筛选
         User user = (User) authentication.getPrincipal();
         admin = user.getAuthorities().contains(GlobalAuthority.ADMIN) && admin;
@@ -189,7 +195,7 @@ public class CommunityController {
 
         Sort sort = Sort.by(Sort.Direction.DESC, "createDate");
 
-        Pageable pageable = PageRequest.of(pageNumber, 25, sort);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         Page<Community> pages = repository.findAll(specification, pageable);
 
