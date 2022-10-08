@@ -1,34 +1,40 @@
 package cn.honorsgc.honorv2.user;
 
-import cn.honorsgc.honorv2.community.exception.CommunityException;
-import cn.honorsgc.honorv2.community.exception.CommunityIllegalParameterException;
 import cn.honorsgc.honorv2.core.GlobalResponseEntity;
 import cn.honorsgc.honorv2.expection.PageNotFoundException;
+import cn.honorsgc.honorv2.user.dto.UserDto;
+import cn.honorsgc.honorv2.user.dto.UserOptionResponseBody;
 import cn.honorsgc.honorv2.user.exception.UserException;
 import cn.honorsgc.honorv2.user.exception.UserIllegalParameterException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-
+import javax.persistence.criteria.Predicate;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Api(tags = "用户管理")
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
+@Slf4j
 public class UserController {
-    final private Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     UserRepository repository;
     @Autowired
     UserService service;
+    @Autowired
+    UserMapper userMapper;
 
     @GetMapping("/{id}")
     @Secured({"ROLE_ADMIN"})
@@ -59,12 +65,55 @@ public class UserController {
         }
     }
 
-    @GetMapping({"", "/"})
+    @GetMapping("/mine")
     @ApiOperation(value = "获取当前用户信息")
-    public User get(@ApiIgnore Authentication authentication) {
+    public User getMine(@ApiIgnore Authentication authentication) {
         return (User) authentication.getPrincipal();
     }
 
+    @GetMapping({"","/"})
+    @Secured({"ROLE_ADMIN"})
+    public Page<UserDto> get(@ApiParam(value = "页号") @RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber,
+                             @ApiParam(value = "页面大小") @RequestParam(value = "page_size", required = false, defaultValue = "25") Integer pageSize,
+                             @ApiParam(value = "班级号") @RequestParam(value = "class", required = false, defaultValue = "") String classId,
+                             @ApiParam(value = "学院") @RequestParam(value = "college", required = false, defaultValue = "") String college,
+                             @ApiParam(value = "专业") @RequestParam(value = "subject", required = false, defaultValue = "") String subject,
+                             @ApiParam(value = "姓名") @RequestParam(value = "name", required = false, defaultValue = "") String name) throws UserException {
+        if (pageSize>50)
+        {
+            throw new UserIllegalParameterException("page_size 应小于等于50");
+        }
+
+        Specification<User> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> list = new ArrayList<>();
+            if (!classId.equals("")) list.add(criteriaBuilder.like(root.get("classId"),"%"+classId+"%"));
+            if (!name.equals(""))list.add(criteriaBuilder.like(root.get("name"),"%"+name+"%"));
+            if (!college.equals(""))list.add(criteriaBuilder.like(root.get("college"),"%"+college+"%"));
+            if (!subject.equals(""))list.add(criteriaBuilder.like(root.get("subject"),"%"+subject+"%"));
+            Predicate[] predicates = new Predicate[list.size()];
+            return criteriaBuilder.and(list.toArray(predicates));
+        };
+
+        Sort sort = Sort.by(Sort.Direction.ASC,"id");
+        Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
+        Page<User> pages = repository.findAll(specification,pageable);
+        return new PageImpl<>(userMapper.userToUserDto(pages.getContent()), pageable, pages.getTotalElements());
+    }
+
+    @GetMapping("/options")
+    @Secured({"ROLE_ADMIN"})
+    public UserOptionResponseBody getOptions(){
+        Set<String> classId = repository.getClassIds();
+        Set<String> college = repository.getCollegeNames();
+        Set<String> subject = repository.getSubjectNames();
+        classId.remove(null);
+        college.remove(null);
+        subject.remove(null);
+        classId.remove("");
+        college.remove("");
+        subject.remove("");
+        return new UserOptionResponseBody(classId,college,subject);
+    }
     @PostMapping("/avatar")
     @ApiOperation("设置头像")
     public User setAva(@ApiIgnore Authentication authentication,
