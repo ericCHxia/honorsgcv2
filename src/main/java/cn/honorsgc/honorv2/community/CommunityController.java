@@ -20,13 +20,11 @@ import cn.honorsgc.honorv2.community.util.CommunityUtil;
 import cn.honorsgc.honorv2.core.*;
 import cn.honorsgc.honorv2.user.User;
 import cn.honorsgc.honorv2.user.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -50,6 +48,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/community")
 @Api(tags = "共同管理")
+@Slf4j
 public class CommunityController {
     @Autowired
     private CommunityMapper communityMapper;
@@ -69,8 +68,6 @@ public class CommunityController {
     private CommunityUtil communityUtil;
     @Autowired
     private HonorConfigRepository honorConfigRepository;
-
-    private final Logger logger = LoggerFactory.getLogger(CommunityController.class);
 
     @PostMapping({"", "/"})
     @ApiOperation(value = "新建共同体")
@@ -140,7 +137,7 @@ public class CommunityController {
                                                 @ApiParam(value = "页号") @RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber,
                                                 @ApiParam(value = "类型") @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
                                                 @ApiParam(value = "用户编号") @RequestParam(value = "user", required = false, defaultValue = "-1") Long userId,
-                                                @ApiParam(value = "状态", allowableValues = "0,1,2") @RequestParam(required = false) Integer state,
+                                                @ApiParam(value = "状态", allowableValues = "0,1,2") @RequestParam(required = false, defaultValue = "-1") Integer state,
                                                 @ApiParam(value = "搜索文本") @RequestParam(value = "search", required = false, defaultValue = "") String search,
                                                 @ApiParam(value = "使用管理员权限") @RequestParam(required = false, defaultValue = "false") Boolean admin,
                                                 @ApiParam(value = "参与用户") @RequestParam(value = "participant", required = false, defaultValue = "-1") Long participantId,
@@ -155,7 +152,7 @@ public class CommunityController {
         //TODO 实现参与用户 和 管理用户的筛选
         User user = (User) authentication.getPrincipal();
         admin = user.getAuthorities().contains(GlobalAuthority.ADMIN) && admin;
-        if (admin && state != null) {
+        if (admin && state != -1) {
             if (state < 0 || state >= 3) {
                 throw new CommunityIllegalParameterException("state参数错误");
             }
@@ -169,7 +166,7 @@ public class CommunityController {
             if (type >= 0) {
                 list.add(cb.equal(root.get("type").get("id"), type));
             }
-            if (finalAdmin && state != null) {
+            if (finalAdmin && state != -1) {
                 list.add(cb.equal(root.get("state"), state));
             } else if (!finalAdmin) {
                 list.add(cb.or(cb.equal(root.get("state"), 1), cb.equal(root.get("user").get("id"), user.getId())));
