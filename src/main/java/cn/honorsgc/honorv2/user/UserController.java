@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
 import javax.persistence.criteria.Predicate;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -132,12 +133,11 @@ public class UserController {
 
     @PostMapping({"","/"})
     @Secured({"ROLE_SUPER"})
-    public GlobalResponseEntity<String> newUsers(@RequestBody User user) throws UserException
-    {
-        user.setId(null);
-        user.setAvatar("");
-        if (repository.findUserByUserId(user.getUserId()).isPresent()){
-            throw new UserHaveExistException();
+    public GlobalResponseEntity<String> newUsers(@RequestBody User user) throws UserException {
+        if (user.getId() == null) {
+            if (repository.findUserByUserId(user.getUserId()).isPresent()) throw new UserHaveExistException();
+            user.setAvatar("");
+            user.setQq("");
         }
         repository.save(user);
         return new GlobalResponseEntity<>();
