@@ -15,6 +15,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 import javax.persistence.criteria.Predicate;
@@ -78,6 +79,7 @@ public class UserController {
                              @ApiParam(value = "班级号") @RequestParam(value = "class", required = false, defaultValue = "") String classId,
                              @ApiParam(value = "学院") @RequestParam(value = "college", required = false, defaultValue = "") String college,
                              @ApiParam(value = "专业") @RequestParam(value = "subject", required = false, defaultValue = "") String subject,
+                             @ApiParam(value = "学号") @RequestParam(value = "userId", required = false, defaultValue = "") String userId,
                              @ApiParam(value = "姓名") @RequestParam(value = "name", required = false, defaultValue = "") String name) throws UserException {
         if (pageSize>50)
         {
@@ -90,6 +92,7 @@ public class UserController {
             if (!name.equals(""))list.add(criteriaBuilder.like(root.get("name"),"%"+name+"%"));
             if (!college.equals(""))list.add(criteriaBuilder.like(root.get("college"),"%"+college+"%"));
             if (!subject.equals(""))list.add(criteriaBuilder.like(root.get("subject"),"%"+subject+"%"));
+            if (!userId.equals(""))list.add(criteriaBuilder.like(root.get("userId"),"%"+userId+"%"));
             Predicate[] predicates = new Predicate[list.size()];
             return criteriaBuilder.and(list.toArray(predicates));
         };
@@ -113,6 +116,17 @@ public class UserController {
         college.remove("");
         subject.remove("");
         return new UserOptionResponseBody(classId,college,subject);
+    }
+
+    @PostMapping("/reset-password")
+    @Secured({"ROLE_SUPER"})
+    public GlobalResponseEntity<String> resetPassword(@ApiParam(value = "用户编号") @RequestParam List<Long> ids){
+        List<User> users = repository.findAllById(ids);
+        users.forEach(a->a.setPassword(DigestUtils.md5DigestAsHex(a.getUserId().getBytes())));
+        repository.saveAll(users);
+        GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
+        responseEntity.setMessage("重置成功");
+        return responseEntity;
     }
     @PostMapping("/avatar")
     @ApiOperation("设置头像")

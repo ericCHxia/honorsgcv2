@@ -24,12 +24,11 @@ public class SimpleAccessDeniedHandle implements AccessDeniedHandler {
     public void handle(HttpServletRequest httpServletRequest,
                        HttpServletResponse httpServletResponse,
                        AccessDeniedException e) throws IOException {
-        log.info("Error Handle");
-        PrintWriter out = httpServletResponse.getWriter();
         httpServletResponse.setContentType("application/json");
         httpServletResponse.setCharacterEncoding("UTF-8");
-        httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-        out.print(objectMapper.writeValueAsString(new GlobalResponseEntity<>(ResultInfo.unauthorized("Token Failed"))));
+        httpServletResponse.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
+        PrintWriter out = httpServletResponse.getWriter();
+        out.print(objectMapper.writeValueAsString(new GlobalResponseEntity<>(ResultInfo.unauthorized("没有操作权限"),"")));
         out.flush();
     }
 }
