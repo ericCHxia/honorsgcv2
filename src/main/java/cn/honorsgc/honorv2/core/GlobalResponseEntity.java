@@ -1,8 +1,6 @@
 package cn.honorsgc.honorv2.core;
 
 import cn.honorsgc.honorv2.ResultInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +24,7 @@ public class GlobalResponseEntity<T> {
 
     public GlobalResponseEntity(ResultInfo info, T data) {
         this.code = info.getCode();
+        this.success = code == 0;
         this.message = info.getMessage();
         this.data = data;
     }
