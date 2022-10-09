@@ -5,6 +5,7 @@ import cn.honorsgc.honorv2.expection.PageNotFoundException;
 import cn.honorsgc.honorv2.user.dto.UserDto;
 import cn.honorsgc.honorv2.user.dto.UserOptionResponseBody;
 import cn.honorsgc.honorv2.user.exception.UserException;
+import cn.honorsgc.honorv2.user.exception.UserHaveExistException;
 import cn.honorsgc.honorv2.user.exception.UserIllegalParameterException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -128,6 +129,20 @@ public class UserController {
         responseEntity.setMessage("重置成功");
         return responseEntity;
     }
+
+    @PostMapping({"","/"})
+    @Secured({"ROLE_SUPER"})
+    public GlobalResponseEntity<String> newUsers(@RequestBody User user) throws UserException
+    {
+        user.setId(null);
+        user.setAvatar("");
+        if (repository.findUserByUserId(user.getUserId()).isPresent()){
+            throw new UserHaveExistException();
+        }
+        repository.save(user);
+        return new GlobalResponseEntity<>();
+    }
+
     @PostMapping("/avatar")
     @ApiOperation("设置头像")
     public User setAva(@ApiIgnore Authentication authentication,

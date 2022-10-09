@@ -6,6 +6,7 @@ import cn.honorsgc.honorv2.core.GlobalResponseEntity;
 public enum UserErrorEnum implements ErrorEnum {
     passwordError(40200,"密码错误"),
     ILLEGAL_PARAMETER(40202,"参数错误"),
+    HAVE_EXIST(40203,"用户已经存在")
     ;
     private final Integer errorCode;
     private final String errorMsg;
