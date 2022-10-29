@@ -272,9 +272,9 @@ public class CommunityController {
         }
         Community                  community       = optionalCommunity.get();
         List<CommunityParticipant> participants    = new ArrayList<>(community.getParticipants());
-        DateFormat                 dateFormatter   = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String                     currentDateTime = dateFormatter.format(new Date());
-        String                     headerValue     = "attachment; filename=users_" + currentDateTime + ".xlsx";
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+        String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
 
         participants.addAll(community.getMentors());
         if (userIds != null && userIds.size() > 0) {
@@ -282,7 +282,9 @@ public class CommunityController {
         }
         response.setHeader("Content-Disposition", headerValue);
 
-        CommunityParticipantExport.valueOf(participants).export(response);
+        List<CommunityRecord> records = communityRecordRepository.findAllByCommunity(community);
+        Map<CommunityParticipant, Integer> participantCountMap = communityUtil.getParticipantRecord(records, community);
+        CommunityParticipantExport.valueOf(participantCountMap, records.size()).export(response);
     }
 
     @PostMapping("/join")
