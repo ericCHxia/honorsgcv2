@@ -74,16 +74,7 @@ public class CommunityController {
     public CommunitySaveResponseBody postCommunity(@ApiIgnore Authentication authentication,
                                                    @Validated({CreateWish.class}) @RequestBody CommunityRequestBody requestBody,
                                                    @ApiIgnore Errors errors) throws CommunityIllegalParameterException {
-        if (errors.hasErrors()) {
-            ObjectError objectError = errors.getAllErrors().get(0);
-            if (objectError instanceof FieldError) {
-                FieldError fieldError = (FieldError) objectError;
-                throw new CommunityIllegalParameterException(fieldError.getField() + fieldError.getDefaultMessage());
-            }
-            throw new CommunityIllegalParameterException(objectError.getDefaultMessage());
-        }
-
-        User      user      = (User) authentication.getPrincipal();
+        User user = checkUser(authentication, errors);
         Community community = new Community();
         community.setUser(user);
         community.setCreateDate(new Date());
@@ -107,15 +98,7 @@ public class CommunityController {
                                                      @ApiParam(value = "编号") @PathVariable Long id,
                                                      @Validated({UpdateWish.class}) @RequestBody CommunityRequestBody requestBody,
                                                      @ApiIgnore Errors errors) throws CommunityIllegalParameterException {
-        if (errors.hasErrors()) {
-            ObjectError objectError = errors.getAllErrors().get(0);
-            if (objectError instanceof FieldError) {
-                FieldError fieldError = (FieldError) objectError;
-                throw new CommunityIllegalParameterException(fieldError.getField() + fieldError.getDefaultMessage());
-            }
-            throw new CommunityIllegalParameterException(objectError.getDefaultMessage());
-        }
-        User user = (User) authentication.getPrincipal();
+        User user = checkUser(authentication, errors);
         Community community = repository.getById(id);
         if (!community.getUser().equals(user) && !authentication.getAuthorities().contains(GlobalAuthority.ADMIN)) {
             throw new CommunityAccessDenied();
@@ -130,6 +113,18 @@ public class CommunityController {
         community = repository.save(community);
 
         return communityMapper.communityToCommunitySaveResponseBody(community);
+    }
+
+    private User checkUser(@ApiIgnore Authentication authentication, @ApiIgnore Errors errors) throws CommunityIllegalParameterException {
+        if (errors.hasErrors()) {
+            ObjectError objectError = errors.getAllErrors().get(0);
+            if (objectError instanceof FieldError) {
+                FieldError fieldError = (FieldError) objectError;
+                throw new CommunityIllegalParameterException(fieldError.getField() + fieldError.getDefaultMessage());
+            }
+            throw new CommunityIllegalParameterException(objectError.getDefaultMessage());
+        }
+        return (User) authentication.getPrincipal();
     }
 
     @GetMapping({"", "/"})
@@ -437,9 +432,11 @@ public class CommunityController {
     @GetMapping("/rec")
     @ApiOperation("搜索记录")
     @Secured("ROLE_ADMIN")
-    public Page<CommunityRecordDto> getRecords(@RequestParam(value = "page", defaultValue = "0", required = false) Integer page) {
-        Sort                  sort                = Sort.by(Sort.Direction.DESC, "createTime");
-        Pageable              pageable            = PageRequest.of(page, 25, sort);
+    public Page<CommunityRecordDto> getRecords(@RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
+                                               @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
+        size = size > 100 ? 100 : size;
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<CommunityRecord> communityRecordPage = communityRecordRepository.findAll(pageable);
         return communityRecordPage.map(communityRecord -> communityMapper.communityRecordToCommunityRecordDto(communityRecord));
     }
