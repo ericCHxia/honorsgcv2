@@ -18,10 +18,6 @@ public class JWTHelper {
     @Value("${jwt.expiration}")
     private int expiration;
 
-    //生成token的秘钥
-    @Value("${jwt.secret}")
-    private String base64Security;
-
     public String generateToken(Claims claims) {
         Calendar calendar = Calendar.getInstance();
         Date now = calendar.getTime();

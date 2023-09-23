@@ -1,11 +1,14 @@
 package cn.honorsgc.honorv2.user;
 
+import cn.honorsgc.honorv2.community.rpc.HduExporterClient;
 import cn.honorsgc.honorv2.core.GlobalResponseEntity;
 import cn.honorsgc.honorv2.expection.PageNotFoundException;
+import cn.honorsgc.honorv2.oss.OssClient;
 import cn.honorsgc.honorv2.user.dto.UserDto;
 import cn.honorsgc.honorv2.user.dto.UserOptionResponseBody;
 import cn.honorsgc.honorv2.user.exception.UserException;
 import cn.honorsgc.honorv2.user.exception.UserIllegalParameterException;
+import io.grpc.StatusRuntimeException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -17,13 +20,13 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
+
 import javax.persistence.criteria.Predicate;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Api(tags = "用户管理")
 @RestController
@@ -36,6 +39,10 @@ public class UserController {
     UserService service;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    HduExporterClient exporterClient;
+    @Autowired
+    OssClient ossClient;
 
     @GetMapping("/{id}")
     @Secured({"ROLE_ADMIN"})
@@ -128,6 +135,7 @@ public class UserController {
         responseEntity.setMessage("重置成功");
         return responseEntity;
     }
+
     @PostMapping("/avatar")
     @ApiOperation("设置头像")
     public User setAva(@ApiIgnore Authentication authentication,
@@ -136,5 +144,36 @@ public class UserController {
 
         auth.setAvatar(avatar);
         return repository.save(auth);
+    }
+
+    @PostMapping("/user-import")
+    @Secured({"ROLE_SUPER"})
+    public GlobalResponseEntity<String> importUsers(@RequestParam(name = "file") MultipartFile file) throws UserException {
+        String extension = "";
+
+        int i = Objects.requireNonNull(file.getOriginalFilename()).lastIndexOf('.');
+        if (i > 0) {
+            extension = file.getOriginalFilename().substring(i);
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        String timestamp = sdf.format(new Date());
+        String newFileName = timestamp + extension;
+
+        String url;
+        try {
+            url = ossClient.upload(newFileName, file.getInputStream(), file.getSize());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new UserException("上传失败");
+        }
+
+        try {
+            exporterClient.ImportUsers(url);
+        } catch (StatusRuntimeException e) {
+            throw new UserException("处理失败");
+        }
+        GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
+        responseEntity.setMessage("导入成功");
+        return responseEntity;
     }
 }

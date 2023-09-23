@@ -16,11 +16,11 @@ import cn.honorsgc.honorv2.community.repository.CommunityParticipantRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityRecordRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityRepository;
 import cn.honorsgc.honorv2.community.repository.CommunityTypeRepository;
+import cn.honorsgc.honorv2.community.rpc.HduExporterClient;
 import cn.honorsgc.honorv2.community.util.CommunityUtil;
 import cn.honorsgc.honorv2.core.*;
 import cn.honorsgc.honorv2.user.User;
 import cn.honorsgc.honorv2.user.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -63,7 +63,7 @@ public class CommunityController {
     @Autowired
     private CommunityRecordRepository communityRecordRepository;
     @Autowired
-    private ObjectMapper objectMapper;
+    private HduExporterClient exporterClient;
     @Autowired
     private CommunityUtil communityUtil;
     @Autowired
@@ -484,5 +484,12 @@ public class CommunityController {
             map.put(String.valueOf(i), repository.count(specificationSate));
         }
         return map;
+    }
+
+    @PostMapping("/export")
+    public GlobalResponseEntity<String> exportCommunity(@RequestParam(value = "ids", required = false) List<Long> communityIds) {
+        GlobalResponseEntity<String> responseEntity = new GlobalResponseEntity<>();
+        responseEntity.setMessage(exporterClient.ExportAttend(communityIds));
+        return responseEntity;
     }
 }
