@@ -1,0 +1,24 @@
+syntax = "proto3";
+option go_package = "hduhonorsexport/pb";
+option java_package = "cn.honorsgc.honorv2.community.rpc.pb";
+
+service HduExporter {
+
+  rpc ExportAttend (ExportAttendRequest) returns (ExportAttendResponse) {}
+  rpc ImportUsers (ImportUsersRequest) returns (ImportUsersResponse) {}
+}
+
+message ExportAttendRequest {
+  repeated uint64 community_ids = 1;
+}
+
+message ExportAttendResponse {
+  string url = 1;
+}
+
+message ImportUsersRequest {
+  string url = 1;
+}
+
+message ImportUsersResponse {
+}
